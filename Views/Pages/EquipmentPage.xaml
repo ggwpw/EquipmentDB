@@ -9,9 +9,21 @@
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,16">
             <WrapPanel>
-                <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Width="220" Margin="0,0,8,0" ToolTip="Поиск по названию или инв. номеру"/>
-                <ComboBox ItemsSource="{Binding Rooms}" SelectedValuePath="Id" SelectedValue="{Binding FilterRoomId}" DisplayMemberPath="Name" Width="160" Margin="0,0,8,0"/>
-                <ComboBox ItemsSource="{Binding Statuses}" SelectedValuePath="Id" SelectedValue="{Binding FilterStatusId}" DisplayMemberPath="Name" Width="130" Margin="0,0,8,0"/>
+                <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Width="220" Margin="0,0,12,0" ToolTip="Поиск по названию или инв. номеру"/>
+                <!-- Фильтр по классу -->
+                <Grid Width="170" Margin="0,0,10,0">
+                    <ComboBox ItemsSource="{Binding Rooms}" SelectedValuePath="Id" SelectedValue="{Binding FilterRoomId}" DisplayMemberPath="Name"/>
+                    <TextBlock Text="— Компьютерный класс —" IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,26,0"
+                               FontStyle="Italic" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                               Visibility="{Binding FilterRoomId, Converter={StaticResource NullToVisInv}}"/>
+                </Grid>
+                <!-- Фильтр по статусу -->
+                <Grid Width="140" Margin="0,0,10,0">
+                    <ComboBox ItemsSource="{Binding Statuses}" SelectedValuePath="Id" SelectedValue="{Binding FilterStatusId}" DisplayMemberPath="Name"/>
+                    <TextBlock Text="— Состояние —" IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,26,0"
+                               FontStyle="Italic" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                               Visibility="{Binding FilterStatusId, Converter={StaticResource NullToVisInv}}"/>
+                </Grid>
                 <Button Content="Сбросить" Style="{StaticResource BtnSecondary}" Command="{Binding ClearFiltersCommand}" Margin="0,0,16,0"/>
                 <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Command="{Binding AddCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
                 <Button Content="&#x270F; Изменить" Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>

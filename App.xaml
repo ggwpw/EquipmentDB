@@ -23,6 +23,9 @@
             <DataTemplate DataType="{x:Type vm:ReportsViewModel}">
                 <pages:ReportsPage/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DatabaseEditorViewModel}">
+                <pages:DatabaseEditorPage/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

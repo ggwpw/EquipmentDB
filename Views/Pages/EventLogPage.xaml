@@ -21,10 +21,11 @@
             <DataGrid ItemsSource="{Binding Entries}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Время"        Binding="{Binding EventTime, StringFormat=dd.MM.yyyy HH:mm:ss}" Width="145"/>
-                    <DataGridTextColumn Header="Пользователь" Binding="{Binding User.Login}"  Width="110"/>
-                    <DataGridTextColumn Header="Событие"      Binding="{Binding EventType}"   Width="130"/>
-                    <DataGridTextColumn Header="Описание"     Binding="{Binding Description}" Width="*"/>
-                    <DataGridTextColumn Header="Таблица"      Binding="{Binding TableName}"   Width="90"/>
+                    <DataGridTextColumn Header="Компьютер"    Binding="{Binding MachineName}"  Width="110"/>
+                    <DataGridTextColumn Header="Пользователь" Binding="{Binding User.Login}"   Width="100"/>
+                    <DataGridTextColumn Header="Событие"      Binding="{Binding EventType}"    Width="120"/>
+                    <DataGridTextColumn Header="Описание"     Binding="{Binding Description}"  Width="*"/>
+                    <DataGridTextColumn Header="Таблица"      Binding="{Binding TableName}"    Width="90"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

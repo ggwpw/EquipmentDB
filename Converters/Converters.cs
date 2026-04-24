@@ -46,6 +46,12 @@ public class NullToVisibilityConverter : IValueConverter
     public object Convert(object v, Type t, object p, CultureInfo c) => v != null ? Visibility.Visible : Visibility.Collapsed;
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
 }
+public class NullToVisibilityInverseConverter : IValueConverter
+{
+    // Returns Visible when value IS null (used for placeholder text)
+    public object Convert(object v, Type t, object p, CultureInfo c) => v == null ? Visibility.Visible : Visibility.Collapsed;
+    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+}
 public class DateOnlyConverter : IValueConverter
 {
     public object Convert(object v, Type t, object p, CultureInfo c)

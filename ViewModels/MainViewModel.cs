@@ -22,16 +22,18 @@ public class MainViewModel : BaseViewModel
     public ICommand NavUsersCommand     { get; }
     public ICommand NavEventLogCommand  { get; }
     public ICommand NavReportsCommand   { get; }
+    public ICommand NavDbEditorCommand  { get; }
     public ICommand LogoutCommand       { get; }
     public event Action? LogoutRequested;
 
     public MainViewModel()
     {
-        NavEquipmentCommand = new RelayCommand(_ => Go(new EquipmentViewModel(), "Оборудование"));
-        NavRoomsCommand     = new RelayCommand(_ => Go(new RoomsViewModel(),     "Классы и сотрудники"));
-        NavUsersCommand     = new RelayCommand(_ => Go(new UsersViewModel(),     "Пользователи"), _ => IsAdmin);
-        NavEventLogCommand  = new RelayCommand(_ => Go(new EventLogViewModel(),  "Журнал событий"), _ => IsAdmin);
-        NavReportsCommand   = new RelayCommand(_ => Go(new ReportsViewModel(),   "Отчёты"));
+        NavEquipmentCommand = new RelayCommand(_ => Go(new EquipmentViewModel(),     "Оборудование"));
+        NavRoomsCommand     = new RelayCommand(_ => Go(new RoomsViewModel(),         "Классы и сотрудники"));
+        NavUsersCommand     = new RelayCommand(_ => Go(new UsersViewModel(),         "Пользователи"),   _ => IsAdmin);
+        NavEventLogCommand  = new RelayCommand(_ => Go(new EventLogViewModel(),      "Журнал событий"), _ => IsAdmin);
+        NavReportsCommand   = new RelayCommand(_ => Go(new ReportsViewModel(),       "Отчёты"));
+        NavDbEditorCommand  = new RelayCommand(_ => Go(new DatabaseEditorViewModel(),"Редактор БД"),    _ => IsAdmin);
         LogoutCommand       = new RelayCommand(_ => Logout());
         Go(new EquipmentViewModel(), "Оборудование");
     }

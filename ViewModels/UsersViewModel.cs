@@ -44,6 +44,13 @@ public class UsersViewModel : BaseViewModel
     private void ToggleActive()
     {
         if (Selected == null) return;
+        // Guard: admin cannot block their own account
+        if (Selected.Id == CurrentSession.User?.Id && Selected.IsActive)
+        {
+            MessageBox.Show("Вы не можете заблокировать собственную учётную запись.", "Ошибка",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
         using var ctx = new AppDbContext();
         var u = ctx.Users.Find(Selected.Id); if (u == null) return;
         u.IsActive = !u.IsActive;
