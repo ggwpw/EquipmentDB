@@ -65,8 +65,6 @@ public class DatabaseEditorViewModel : BaseViewModel
                 conn.Open();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = $"SELECT * FROM `{SelectedTable}` ORDER BY id LIMIT 500";
-                var da = new System.Data.Common.DbDataAdapter() as System.Data.IDbDataAdapter;
-                // Use DataReader to fill DataTable manually
                 using var reader = cmd.ExecuteReader();
                 var table = new DataTable(SelectedTable);
                 table.Load(reader);
