@@ -123,9 +123,9 @@ INSERT INTO staff (full_name, position, phone, email, room_id) VALUES
     ('Козлова Наталья Викторовна', 'Преподаватель информатики', '+7-900-000-12-34', 'kozlova@school.ru',  4);
 
 INSERT INTO users (login, password_hash, role, staff_id, is_active) VALUES
-    ('admin',    '$2b$11$2iND6USnvvGeTyv.tdvuZefTlmGD2P1jLvPNiEiHOW60EZ3vc59oy', 'admin',    1, 1),
-    ('operator', '$2b$11$wEpvCNY3UpwyZ.5umitllu8mDRndl/iiJNv2JlkTKWa1lKtsGdQmC', 'operator', 2, 1),
-    ('observer', '$2b$11$sBgkRPWaKiK3hOkI7e/XFOCCRO1okl8N9rQGH31x1iQGzu7v3R93W', 'observer', 3, 1);
+    ('admin',    '$2a$11$tvWqO5JSfYsfiDveXx3cPe9l0CCuC5iUDluLd5I5KwNJHzbFpZ3vW', 'admin',    1, 1),
+    ('operator', '$2a$11$bsnsBo7BCyalgfVBc97OGeB6aTFBWNo5f1fFGMY.3CkyvqEQxPAzi', 'operator', 2, 1),
+    ('observer', '$2a$11$aLc1ietXL0iW0SdLOhU/TeVcHCm9I4CIf68.X6.szifJVuv3z9Wgy', 'observer', 3, 1);
 
 INSERT INTO equipment (inventory_number, name, type_id, room_id, arrival_date, status_id, specs) VALUES
     ('ИНВ-00001', 'ПК Rombica i5',          1, 1, '2021-09-01', 1, 'CPU: Intel Core i5-10400, RAM: 8 GB, SSD: 256 GB'),
