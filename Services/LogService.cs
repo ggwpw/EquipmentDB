@@ -17,7 +17,8 @@ public static class LogService
                 EventType = eventType,
                 Description = description,
                 TableName = table,
-                RecordId = recordId
+                RecordId = recordId,
+                MachineName = Environment.MachineName
             });
             ctx.SaveChanges();
         }

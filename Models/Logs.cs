@@ -9,6 +9,7 @@ public class EventLogEntry
     public string? TableName { get; set; }
     public int? RecordId { get; set; }
     public DateTime EventTime { get; set; } = DateTime.Now;
+    public string? MachineName { get; set; }
 }
 public class LoginHistory
 {

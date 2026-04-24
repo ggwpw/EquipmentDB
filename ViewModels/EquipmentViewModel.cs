@@ -21,9 +21,17 @@ public class EquipmentViewModel : BaseViewModel
 
     public ObservableCollection<Equipment> Items    { get => _items;    set => Set(ref _items, value); }
     public Equipment?                      Selected { get => _selected; set => Set(ref _selected, value); }
-    public string Search { get => _search; set { Set(ref _search, value); _ = LoadAsync(); } }
-    public int? FilterRoomId   { get => _filterRoomId;   set { Set(ref _filterRoomId, value);   _ = LoadAsync(); } }
-    public int? FilterStatusId { get => _filterStatusId; set { Set(ref _filterStatusId, value); _ = LoadAsync(); } }
+    public string Search { get => _search; set { Set(ref _search, value); _ = LoadItemsAsync(); } }
+    public int? FilterRoomId
+    {
+        get => _filterRoomId;
+        set { if (_filterRoomId == value) return; Set(ref _filterRoomId, value); _ = LoadItemsAsync(); }
+    }
+    public int? FilterStatusId
+    {
+        get => _filterStatusId;
+        set { if (_filterStatusId == value) return; Set(ref _filterStatusId, value); _ = LoadItemsAsync(); }
+    }
     public List<Room>   Rooms    { get => _rooms;    set => Set(ref _rooms, value); }
     public List<Status> Statuses { get => _statuses; set => Set(ref _statuses, value); }
     public bool CanEdit => CurrentSession.CanEdit;
@@ -46,7 +54,17 @@ public class EquipmentViewModel : BaseViewModel
         _ = LoadAsync();
     }
 
+    // Full reload: filter lists + items
     public async Task LoadAsync()
+    {
+        await using var ctx = new AppDbContext();
+        Rooms    = await ctx.Rooms.OrderBy(r => r.Cabinet).ToListAsync();
+        Statuses = await ctx.Statuses.ToListAsync();
+        await LoadItemsAsync();
+    }
+
+    // Items only — called when filters change (avoids ComboBox rebind loop)
+    public async Task LoadItemsAsync()
     {
         await using var ctx = new AppDbContext();
         var q = ctx.Equipment.Include(e => e.Type).Include(e => e.Room).Include(e => e.Status).AsQueryable();
@@ -54,9 +72,7 @@ public class EquipmentViewModel : BaseViewModel
             q = q.Where(e => e.Name.Contains(Search) || e.InventoryNumber.Contains(Search));
         if (FilterRoomId.HasValue)   q = q.Where(e => e.RoomId   == FilterRoomId);
         if (FilterStatusId.HasValue) q = q.Where(e => e.StatusId == FilterStatusId);
-        Items    = new ObservableCollection<Equipment>(await q.OrderBy(e => e.InventoryNumber).ToListAsync());
-        Rooms    = await ctx.Rooms.OrderBy(r => r.Cabinet).ToListAsync();
-        Statuses = await ctx.Statuses.ToListAsync();
+        Items = new ObservableCollection<Equipment>(await q.OrderBy(e => e.InventoryNumber).ToListAsync());
     }
 
     private void OpenDialog(Equipment? item)

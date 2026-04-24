@@ -73,6 +73,7 @@ CREATE TABLE event_log (
     table_name  VARCHAR(50),
     record_id   INT,
     event_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    machine_name VARCHAR(100),
     CONSTRAINT fk_log_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
 );

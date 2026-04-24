@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Threading;
 using EquipmentDB.Data;
 using EquipmentDB.Helpers;
 using EquipmentDB.Models;
@@ -13,6 +14,7 @@ public class EventLogViewModel : BaseViewModel
     private DateTime _from = DateTime.Today.AddDays(-7);
     private DateTime _to   = DateTime.Today;
     private string _searchUser = string.Empty;
+    private readonly DispatcherTimer _autoRefresh;
 
     public ObservableCollection<EventLogEntry> Entries    { get => _entries;    set => Set(ref _entries, value); }
     public DateTime From       { get => _from;       set { Set(ref _from, value);       _ = LoadAsync(); } }
@@ -25,6 +27,10 @@ public class EventLogViewModel : BaseViewModel
     {
         RefreshCommand = new RelayCommand(_ => _ = LoadAsync());
         _ = LoadAsync();
+        // Auto-refresh every 30 sec for multi-user environments
+        _autoRefresh = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _autoRefresh.Tick += (_, _) => _ = LoadAsync();
+        _autoRefresh.Start();
     }
 
     public async Task LoadAsync()

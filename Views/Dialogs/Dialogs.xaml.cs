@@ -111,11 +111,15 @@ public partial class RoomDialog : Window
     {
         if (string.IsNullOrWhiteSpace(_room.Cabinet) || string.IsNullOrWhiteSpace(_room.Name))
         { MessageBox.Show("Заполните все поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+        // Failsafe: read Capacity from TextBox directly (in case LostFocus binding didn't fire)
+        if (int.TryParse(CapacityBox.Text, out int cap)) _room.Capacity = cap;
         using var ctx = new AppDbContext();
         if (_isNew) { ctx.Rooms.Add(_room); ctx.SaveChanges(); LogService.Log("Добавление", $"Добавлен класс {_room.Cabinet}", "rooms", _room.Id); }
         else { var r = ctx.Rooms.Find(_room.Id); if (r==null) return; r.Cabinet=_room.Cabinet; r.Name=_room.Name; r.Capacity=_room.Capacity; ctx.SaveChanges(); LogService.Log("Изменение", $"Изменён класс {r.Cabinet}", "rooms", r.Id); }
         DialogResult = true;
     }
+    private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
+}
     private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
 }
 

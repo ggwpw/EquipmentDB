@@ -8,6 +8,7 @@
     <conv:ActiveConverter                  x:Key="ActiveConv"/>
     <conv:ActiveBrushConverter             x:Key="ActiveBrush"/>
     <conv:NullToVisibilityConverter        x:Key="NullToVis"/>
+    <conv:NullToVisibilityInverseConverter x:Key="NullToVisInv"/>
     <conv:DateOnlyConverter                x:Key="DateOnlyConv"/>
     <conv:SuccessConverter                 x:Key="SuccessConv"/>
 
