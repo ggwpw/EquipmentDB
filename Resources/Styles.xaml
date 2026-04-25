@@ -100,7 +100,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
-                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                      Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsFocused" Value="True">
