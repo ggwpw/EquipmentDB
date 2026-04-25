@@ -33,26 +33,55 @@
             </WrapPanel>
         </Border>
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
-            <DataGrid helpers:DataGridHelper.EnableCopyRow="True" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Инв. номер"      Binding="{Binding InventoryNumber}" Width="120"/>
-                    <DataGridTextColumn Header="Название"        Binding="{Binding Name}"            Width="*"/>
-                    <DataGridTextColumn Header="Тип"             Binding="{Binding Type.Name}"       Width="140"/>
-                    <DataGridTextColumn Header="Класс"           Binding="{Binding Room.Cabinet}"    Width="70"/>
-                    <DataGridTemplateColumn Header="Состояние"   Width="120">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center"
-                                             Fill="{Binding Status.ColorHex, Converter={StaticResource HexToBrush}}"/>
-                                    <TextBlock Text="{Binding Status.Name}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Дата поступления" Binding="{Binding ArrivalDate}" Width="130"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Таблица оборудования -->
+                <DataGrid Grid.Column="0" helpers:DataGridHelper.EnableCopyRow="True"
+                          ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Инв. номер"      Binding="{Binding InventoryNumber}" Width="120"/>
+                        <DataGridTextColumn Header="Название"        Binding="{Binding Name}"            Width="*"/>
+                        <DataGridTextColumn Header="Тип"             Binding="{Binding Type.Name}"       Width="140"/>
+                        <DataGridTextColumn Header="Класс"           Binding="{Binding Room.Cabinet}"    Width="70"/>
+                        <DataGridTemplateColumn Header="Состояние"   Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                 Fill="{Binding Status.ColorHex, Converter={StaticResource HexToBrush}}"/>
+                                        <TextBlock Text="{Binding Status.Name}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Дата поступления" Binding="{Binding ArrivalDate}" Width="130"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <!-- Панель превью фото справа (только когда у выбранной строки есть фото) -->
+                <Border Grid.Column="1" Width="190"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1,0,0,0"
+                        Visibility="{Binding Selected.PhotoPath, Converter={StaticResource NullToVis}}">
+                    <StackPanel Margin="12" VerticalAlignment="Top">
+                        <TextBlock Text="ФОТО" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                                   Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
+                        <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
+                                Background="{StaticResource BackgroundBrush}">
+                            <Image Source="{Binding Selected.PhotoPath, Converter={StaticResource PathToImage}}"
+                                   Stretch="Uniform" MaxHeight="170" MaxWidth="166" Margin="4"/>
+                        </Border>
+                        <TextBlock Text="{Binding Selected.Name}" FontFamily="Segoe UI" FontSize="11"
+                                   Foreground="{StaticResource TextPrimaryBrush}" TextAlignment="Center"
+                                   Margin="0,8,0,2" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Selected.InventoryNumber}" FontFamily="Segoe UI" FontSize="10"
+                                   Foreground="{StaticResource TextMutedBrush}" TextAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

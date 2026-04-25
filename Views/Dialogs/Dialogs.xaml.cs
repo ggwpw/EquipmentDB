@@ -61,7 +61,7 @@ public partial class EquipmentDialog : Window
             _vm.Specs = item.Specs; _vm.PhotoPath = item.PhotoPath;
         }
         DataContext = _vm;
-        UpdatePhotoPreview();
+        Loaded += (_, _) => UpdatePhotoPreview();
     }
 
     private void UpdatePhotoPreview()
@@ -160,18 +160,65 @@ public partial class RoomDialog : Window
     {
         InitializeComponent();
         _isNew = room == null;
-        _room = room != null ? new Room { Id=room.Id, Cabinet=room.Cabinet, Name=room.Name, Capacity=room.Capacity } : new Room();
+        _room = room != null
+            ? new Room { Id=room.Id, Cabinet=room.Cabinet, Name=room.Name, Capacity=room.Capacity, PhotoPath=room.PhotoPath }
+            : new Room();
         DataContext = _room;
+        Loaded += (_, _) => UpdateRoomPhotoPreview();
     }
+
+    private void UpdateRoomPhotoPreview()
+    {
+        var abs = PhotoService.ResolveAbsolutePath(_room.PhotoPath);
+        if (abs != null && System.IO.File.Exists(abs))
+        {
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
+            bmp.UriSource = new Uri(abs, UriKind.Absolute);
+            bmp.EndInit();
+            RoomPhotoPreview.Source = bmp;
+        }
+        else RoomPhotoPreview.Source = null;
+    }
+
+    private void OnBrowsePhoto(object s, RoutedEventArgs e)
+    {
+        var d = new Microsoft.Win32.OpenFileDialog
+            { Filter = "Изображения|*.jpg;*.jpeg;*.png;*.bmp;*.gif|Все файлы|*.*" };
+        if (d.ShowDialog() != true) return;
+        var key = string.IsNullOrWhiteSpace(_room.Cabinet) ? $"room_{_room.Id}" : _room.Cabinet;
+        _room.PhotoPath = PhotoService.CopyPhoto(d.FileName, "room_" + key);
+        // Room — plain POCO, нет INotifyPropertyChanged. Обновляем UI напрямую.
+        RoomPhotoPreview.Visibility = System.Windows.Visibility.Visible;
+        UpdateRoomPhotoPreview();
+    }
+
+    private void OnRemovePhoto(object s, RoutedEventArgs e)
+    {
+        PhotoService.DeletePhoto(_room.PhotoPath);
+        _room.PhotoPath = null;
+        RoomPhotoPreview.Source = null;
+    }
+
     private void OnSave(object s, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(_room.Cabinet) || string.IsNullOrWhiteSpace(_room.Name))
         { MessageBox.Show("Заполните все поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
-        // Failsafe: read Capacity from TextBox directly (in case LostFocus binding didn't fire)
         if (int.TryParse(CapacityBox.Text, out int cap)) _room.Capacity = cap;
         using var ctx = new AppDbContext();
-        if (_isNew) { ctx.Rooms.Add(_room); ctx.SaveChanges(); LogService.Log("Добавление", $"Добавлен класс {_room.Cabinet}", "rooms", _room.Id); }
-        else { var r = ctx.Rooms.Find(_room.Id); if (r==null) return; r.Cabinet=_room.Cabinet; r.Name=_room.Name; r.Capacity=_room.Capacity; ctx.SaveChanges(); LogService.Log("Изменение", $"Изменён класс {r.Cabinet}", "rooms", r.Id); }
+        if (_isNew)
+        {
+            ctx.Rooms.Add(_room); ctx.SaveChanges();
+            LogService.Log("Добавление", $"Добавлен класс {_room.Cabinet}", "rooms", _room.Id);
+        }
+        else
+        {
+            var r = ctx.Rooms.Find(_room.Id); if (r == null) return;
+            r.Cabinet=_room.Cabinet; r.Name=_room.Name; r.Capacity=_room.Capacity; r.PhotoPath=_room.PhotoPath;
+            ctx.SaveChanges();
+            LogService.Log("Изменение", $"Изменён класс {r.Cabinet}", "rooms", r.Id);
+        }
         DialogResult = true;
     }
     private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
