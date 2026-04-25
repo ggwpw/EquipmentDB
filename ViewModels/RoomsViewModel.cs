@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using EquipmentDB.Data;
 using EquipmentDB.Helpers;
+using Microsoft.EntityFrameworkCore;
 using EquipmentDB.Models;
 using EquipmentDB.Services;
 
@@ -41,8 +42,31 @@ public class RoomsViewModel : BaseViewModel
 
     public void LoadRooms()
     {
-        using var ctx = new AppDbContext();
-        Rooms = new ObservableCollection<Room>(ctx.Rooms.OrderBy(r => r.Cabinet).ToList());
+        try
+        {
+            using var ctx = new AppDbContext();
+            Rooms = new ObservableCollection<Room>(ctx.Rooms.OrderBy(r => r.Cabinet).ToList());
+        }
+        catch (Exception ex) when (ex.Message.Contains("photo_path") || ex.Message.Contains("Unknown column"))
+        {
+            // photo_path ещё не добавлена в БД — загружаем без неё
+            using var ctx = new AppDbContext();
+            var conn = ctx.Database.GetDbConnection();
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT id, cabinet, name, capacity FROM rooms ORDER BY cabinet";
+            using var reader = cmd.ExecuteReader();
+            var list = new List<Room>();
+            while (reader.Read())
+                list.Add(new Room
+                {
+                    Id       = reader.GetInt32(0),
+                    Cabinet  = reader.GetString(1),
+                    Name     = reader.GetString(2),
+                    Capacity = reader.GetInt32(3)
+                });
+            Rooms = new ObservableCollection<Room>(list);
+        }
     }
 
     private void LoadStaff()
