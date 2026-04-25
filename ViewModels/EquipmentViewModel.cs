@@ -102,7 +102,7 @@ public class EquipmentViewModel : BaseViewModel
 
     private void Export()
     {
-        var dlg = new SaveFileDialog { Filter = "Excel|*.xlsx", FileName = $"equipment_{DateTime.Now:yyyyMMdd}" };
+        var dlg = new SaveFileDialog { Filter = "Excel|*.xlsx", FileName = $"equipment_{DateTime.Now:yyyyMMdd_HHmmss}" };
         if (dlg.ShowDialog() != true) return;
         ExcelService.ExportEquipment([.. Items], dlg.FileName);
         MessageBox.Show("Экспорт завершён.", "Готово", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -66,20 +66,29 @@ public partial class EquipmentDialog : Window
 
     private void UpdatePhotoPreview()
     {
-        var abs = _vm.PhotoAbsPath;
-        if (abs != null && System.IO.File.Exists(abs))
+        // PhotoPreview может быть null если вкладка ещё не отрисована — откладываем
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, () =>
         {
-            var bmp = new System.Windows.Media.Imaging.BitmapImage();
-            bmp.BeginInit();
-            bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-            bmp.UriSource = new Uri(abs, UriKind.Absolute);
-            bmp.EndInit();
-            PhotoPreview.Source = bmp;
-        }
-        else
-        {
-            PhotoPreview.Source = null;
-        }
+            if (PhotoPreview == null) return;
+            var abs = _vm.PhotoAbsPath;
+            if (abs != null && System.IO.File.Exists(abs))
+            {
+                try
+                {
+                    var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    bmp.UriSource = new Uri(abs, UriKind.Absolute);
+                    bmp.EndInit();
+                    PhotoPreview.Source = bmp;
+                }
+                catch { PhotoPreview.Source = null; }
+            }
+            else
+            {
+                PhotoPreview.Source = null;
+            }
+        });
     }
 
     private void OnSave(object s, RoutedEventArgs e)

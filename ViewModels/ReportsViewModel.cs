@@ -93,7 +93,7 @@ public class ReportsViewModel : BaseViewModel
         var dlg = new SaveFileDialog
         {
             Filter   = "Excel|*.xlsx",
-            FileName = $"{ReportTitle.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd}"
+            FileName = $"{ReportTitle.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}"
         };
         if (dlg.ShowDialog() != true) return;
 

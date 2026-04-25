@@ -12,35 +12,28 @@
 
         <TabControl Grid.Row="0" BorderThickness="0" Background="Transparent">
 
-            <!-- Основное -->
             <TabItem Header="Основное">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
                     <StackPanel>
                         <TextBlock Text="Инвентарный номер *" Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding InventoryNumber, UpdateSourceTrigger=PropertyChanged}"/>
-
                         <TextBlock Text="Название *" Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
-
                         <TextBlock Text="Тип оборудования *" Style="{StaticResource FormLabel}"/>
                         <ComboBox ItemsSource="{Binding Types}" DisplayMemberPath="Name"
                                   SelectedValuePath="Id" SelectedValue="{Binding TypeId}"/>
-
                         <TextBlock Text="Класс *" Style="{StaticResource FormLabel}"/>
                         <ComboBox ItemsSource="{Binding Rooms}" DisplayMemberPath="Name"
                                   SelectedValuePath="Id" SelectedValue="{Binding RoomId}"/>
-
                         <TextBlock Text="Состояние *" Style="{StaticResource FormLabel}"/>
                         <ComboBox ItemsSource="{Binding Statuses}" DisplayMemberPath="Name"
                                   SelectedValuePath="Id" SelectedValue="{Binding StatusId}"/>
-
                         <TextBlock Text="Дата поступления *" Style="{StaticResource FormLabel}"/>
                         <DatePicker SelectedDate="{Binding ArrivalDateDt}"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <!-- Характеристики -->
             <TabItem Header="Характеристики">
                 <StackPanel Margin="0,8,0,0">
                     <TextBlock Text="Технические характеристики" Style="{StaticResource FormLabel}"/>
@@ -50,36 +43,28 @@
                 </StackPanel>
             </TabItem>
 
-            <!-- Фото -->
-            <TabItem Header="📷 Фото">
+            <TabItem Header="Фото">
                 <StackPanel Margin="0,8,0,0">
-                    <!-- Кнопки -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <Button Content="📂 Выбрать файл" Style="{StaticResource BtnPrimary}"
+                        <Button Content="Выбрать файл" Style="{StaticResource BtnPrimary}"
                                 Click="OnBrowsePhoto" Margin="0,0,8,0"/>
-                        <Button Content="🗑 Удалить фото" Style="{StaticResource BtnDanger}"
-                                Click="OnRemovePhoto" Margin="0,0,0,0"/>
+                        <Button Content="Удалить фото" Style="{StaticResource BtnDanger}"
+                                Click="OnRemovePhoto"/>
                     </StackPanel>
-
-                    <!-- Путь (только чтение, для информации) -->
-                    <TextBlock Text="{Binding PhotoFileName}" FontFamily="Segoe UI"
-                               FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                    <TextBlock Text="{Binding PhotoFileName}" FontFamily="Segoe UI" FontSize="11"
+                               Foreground="{StaticResource TextMutedBrush}"
                                TextTrimming="CharacterEllipsis" Margin="0,0,0,8"
                                ToolTip="{Binding PhotoPath}"/>
-
-                    <!-- Превью -->
-                    <Border Height="220" BorderBrush="{StaticResource BorderBrush2}"
+                    <Border Height="230" BorderBrush="{StaticResource BorderBrush2}"
                             BorderThickness="1" CornerRadius="6" Background="{StaticResource SurfaceBrush}">
                         <Grid>
-                            <!-- Заглушка если нет фото -->
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                         Visibility="{Binding PhotoPath, Converter={StaticResource InvNullToVis}}">
-                                <TextBlock Text="🖼" FontSize="40" HorizontalAlignment="Center"/>
+                                <TextBlock Text="&#x1F5BC;" FontSize="40" HorizontalAlignment="Center"/>
                                 <TextBlock Text="Фото не выбрано" FontFamily="Segoe UI" FontSize="12"
-                                           Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"/>
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           HorizontalAlignment="Center" Margin="0,4,0,0"/>
                             </StackPanel>
-                            <!-- Превью -->
                             <Image x:Name="PhotoPreview" Stretch="Uniform" Margin="8"
                                    Visibility="{Binding PhotoPath, Converter={StaticResource NullToVis}}"/>
                         </Grid>
