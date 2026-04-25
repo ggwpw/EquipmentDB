@@ -11,7 +11,7 @@
         <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,16">
             <WrapPanel>
                 <Button Content="+ Добавить"           Style="{StaticResource BtnPrimary}"   Command="{Binding AddCommand}"      Margin="0,0,6,0"/>
-                <Button Content="&#x270F; Изменить"    Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}"     Margin="0,0,6,0"/>
+                <Button Content="Изменить"    Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}"     Margin="0,0,6,0"/>
                 <Button Content="&#x1F512; Блок/Разблок" Style="{StaticResource BtnSecondary}" Command="{Binding ToggleCommand}" Margin="0,0,6,0"/>
                 <Button Content="&#x1F511; Сбросить пароль" Style="{StaticResource BtnSecondary}" Command="{Binding ResetPwdCommand}"/>
             </WrapPanel>

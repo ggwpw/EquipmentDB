@@ -17,8 +17,8 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Классы" FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Margin="0,0,6,0" Command="{Binding AddRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x270F;" Style="{StaticResource BtnSecondary}" Width="34" Margin="0,0,6,0" Command="{Binding EditRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x1F5D1;" Style="{StaticResource BtnDanger}" Width="34" Command="{Binding DeleteRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Изменить" Style="{StaticResource BtnSecondary}" Margin="0,0,6,0" Command="{Binding EditRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
                 <Grid>
@@ -38,14 +38,20 @@
                     <Border Grid.Column="1" Width="190"
                             Background="{StaticResource SurfaceBrush}"
                             BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1,0,0,0"
-                            Visibility="{Binding SelectedRoom.PhotoPath, Converter={StaticResource NullToVis}}">
+                            Visibility="{Binding SelectedRoom, Converter={StaticResource NullToVis}}">
                         <StackPanel Margin="12" VerticalAlignment="Top">
                             <TextBlock Text="ФОТО КЛАССА" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
                             <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
                                     Background="{StaticResource SurfaceBrush}">
-                                <Image Source="{Binding SelectedRoom.PhotoPath, Converter={StaticResource PathToImage}}"
-                                       Stretch="Uniform" MaxHeight="160" MaxWidth="166" Margin="4"/>
+                                <Grid MinHeight="80">
+                                    <Image Source="{Binding SelectedRoom.PhotoPath, Converter={StaticResource PathToImage}}"
+                                           Stretch="Uniform" MaxHeight="160" MaxWidth="166" Margin="4"
+                                           Visibility="{Binding SelectedRoom.PhotoPath, Converter={StaticResource NullToVis}}"/>
+                                    <TextBlock Text="Нет фото" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               FontFamily="Segoe UI" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                                               Visibility="{Binding SelectedRoom.PhotoPath, Converter={StaticResource NullToVisInv}}"/>
+                                </Grid>
                             </Border>
                             <TextBlock Text="{Binding SelectedRoom.Name}" FontFamily="Segoe UI" FontSize="11"
                                        Foreground="{StaticResource TextPrimaryBrush}" TextAlignment="Center"
@@ -65,8 +71,8 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Сотрудники" FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Margin="0,0,6,0" Command="{Binding AddStaffCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x270F;" Style="{StaticResource BtnSecondary}" Width="34" Margin="0,0,6,0" Command="{Binding EditStaffCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x1F5D1;" Style="{StaticResource BtnDanger}" Width="34" Command="{Binding DeleteStaffCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Изменить" Style="{StaticResource BtnSecondary}" Margin="0,0,6,0" Command="{Binding EditStaffCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteStaffCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
                 <DataGrid helpers:DataGridHelper.EnableCopyRow="True" ItemsSource="{Binding Staff}" SelectedItem="{Binding SelectedStaff}">

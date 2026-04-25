@@ -27,8 +27,8 @@
                 </Grid>
                 <Button Content="Сбросить" Style="{StaticResource BtnSecondary}" Command="{Binding ClearFiltersCommand}" Margin="0,0,16,0"/>
                 <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Command="{Binding AddCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x270F; Изменить" Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="&#x1F5D1; Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Изменить" Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
                 <Button Content="&#x1F4E5; Excel" Style="{StaticResource BtnSecondary}" Command="{Binding ExportCommand}"/>
             </WrapPanel>
         </Border>
@@ -60,18 +60,24 @@
                         <DataGridTextColumn Header="Дата поступления" Binding="{Binding ArrivalDate}" Width="130"/>
                     </DataGrid.Columns>
                 </DataGrid>
-                <!-- Панель превью фото справа (только когда у выбранной строки есть фото) -->
+                <!-- Панель превью фото справа (только когда выбрана строка) -->
                 <Border Grid.Column="1" Width="190"
                         Background="{StaticResource SurfaceBrush}"
                         BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1,0,0,0"
-                        Visibility="{Binding Selected.PhotoPath, Converter={StaticResource NullToVis}}">
+                        Visibility="{Binding Selected, Converter={StaticResource NullToVis}}">
                     <StackPanel Margin="12" VerticalAlignment="Top">
                         <TextBlock Text="ФОТО" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
                         <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
                                 Background="{StaticResource SurfaceBrush}">
-                            <Image Source="{Binding Selected.PhotoPath, Converter={StaticResource PathToImage}}"
-                                   Stretch="Uniform" MaxHeight="170" MaxWidth="166" Margin="4"/>
+                            <Grid MinHeight="80">
+                                <Image Source="{Binding Selected.PhotoPath, Converter={StaticResource PathToImage}}"
+                                       Stretch="Uniform" MaxHeight="170" MaxWidth="166" Margin="4"
+                                       Visibility="{Binding Selected.PhotoPath, Converter={StaticResource NullToVis}}"/>
+                                <TextBlock Text="Нет фото" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           FontFamily="Segoe UI" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
+                                           Visibility="{Binding Selected.PhotoPath, Converter={StaticResource NullToVisInv}}"/>
+                            </Grid>
                         </Border>
                         <TextBlock Text="{Binding Selected.Name}" FontFamily="Segoe UI" FontSize="11"
                                    Foreground="{StaticResource TextPrimaryBrush}" TextAlignment="Center"

@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:EquipmentDB.ViewModels"
-        Title="Учёт оборудования" Height="720" Width="1200"
-        WindowStartupLocation="CenterScreen" MinHeight="600" MinWidth="1000"
+        Title="Учёт оборудования" Height="780" Width="1280"
+        WindowStartupLocation="CenterScreen" MinHeight="680" MinWidth="1100"
         Background="{StaticResource SurfaceBrush}">
     <Window.DataContext><vm:MainViewModel/></Window.DataContext>
     <Grid>
