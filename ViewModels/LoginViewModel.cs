@@ -19,6 +19,7 @@ public class LoginViewModel : BaseViewModel
     public ICommand LoginCommand     { get; }
     public ICommand DevResetCommand  { get; }
     public event Action? LoginSucceeded;
+    public event Action? AppCloseRequested;
 
     public LoginViewModel()
     {
@@ -41,16 +42,12 @@ public class LoginViewModel : BaseViewModel
                 LoginSucceeded?.Invoke();
                 break;
 
-            case AuthService.LoginResult.AccountLocked:
-                ErrorMessage    = "Учётная запись заблокирована. Обратитесь к администратору.";
-                AttemptsMessage = string.Empty;
-                break;
-
             default:
-                ErrorMessage    = "Неверный логин или пароль.";
-                AttemptsMessage = response.AttemptsLeft > 0
-                    ? $"Осталось попыток: {response.AttemptsLeft}"
-                    : string.Empty;
+                ErrorMessage = "Неверный логин или пароль.";
+                if (response.AttemptsLeft > 0)
+                    AttemptsMessage = $"Осталось попыток: {response.AttemptsLeft}";
+                else
+                    AppCloseRequested?.Invoke();
                 break;
         }
     }

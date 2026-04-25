@@ -23,11 +23,12 @@
             <TextBlock Text="Логин" Style="{StaticResource FormLabel}"/>
             <TextBox x:Name="LoginBox"
                      Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,8" FontSize="13"
                      KeyDown="OnKeyDown"/>
 
             <TextBlock Text="Пароль" Style="{StaticResource FormLabel}"/>
             <!-- PasswordBox стилизован под TextBox через Template -->
-            <PasswordBox x:Name="PwdBox" KeyDown="OnKeyDown">
+            <PasswordBox x:Name="PwdBox" KeyDown="OnKeyDown" Padding="8,8" FontSize="13">
                 <PasswordBox.Style>
                     <Style TargetType="PasswordBox">
                         <Setter Property="FontFamily"      Value="Segoe UI"/>
