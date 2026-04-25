@@ -69,3 +69,25 @@ public class SuccessConverter : IValueConverter
     public object Convert(object v, Type t, object p, CultureInfo c) => v is true ? "Успешно" : "Неудача";
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
 }
+public class PathToImageConverter : IValueConverter
+{
+    public object? Convert(object v, Type t, object p, CultureInfo c)
+    {
+        var rel = v as string;
+        if (string.IsNullOrWhiteSpace(rel)) return null;
+        var abs = EquipmentDB.Services.PhotoService.ResolveAbsolutePath(rel);
+        if (abs == null || !System.IO.File.Exists(abs)) return null;
+        try
+        {
+            var bmp = new System.Windows.Media.Imaging.BitmapImage();
+            bmp.BeginInit();
+            bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            bmp.UriSource   = new Uri(abs, UriKind.Absolute);
+            bmp.EndInit();
+            bmp.Freeze();
+            return bmp;
+        }
+        catch { return null; }
+    }
+    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+}

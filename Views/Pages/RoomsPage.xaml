@@ -21,13 +21,40 @@
                 <Button Content="&#x1F5D1;" Style="{StaticResource BtnDanger}" Width="34" Command="{Binding DeleteRoomCommand}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
-                <DataGrid helpers:DataGridHelper.EnableCopyRow="True" ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Кабинет"     Binding="{Binding Cabinet}"  Width="80"/>
-                        <DataGridTextColumn Header="Название"    Binding="{Binding Name}"     Width="*"/>
-                        <DataGridTextColumn Header="Вместимость" Binding="{Binding Capacity}" Width="90"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Grid.Column="0" helpers:DataGridHelper.EnableCopyRow="True"
+                              ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Кабинет"     Binding="{Binding Cabinet}"  Width="80"/>
+                            <DataGridTextColumn Header="Название"    Binding="{Binding Name}"     Width="*"/>
+                            <DataGridTextColumn Header="Вместимость" Binding="{Binding Capacity}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!-- Превью фото кабинета -->
+                    <Border Grid.Column="1" Width="190"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1,0,0,0"
+                            Visibility="{Binding SelectedRoom.PhotoPath, Converter={StaticResource NullToVis}}">
+                        <StackPanel Margin="12" VerticalAlignment="Top">
+                            <TextBlock Text="ФОТО КЛАССА" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
+                            <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
+                                    Background="{StaticResource BackgroundBrush}">
+                                <Image Source="{Binding SelectedRoom.PhotoPath, Converter={StaticResource PathToImage}}"
+                                       Stretch="Uniform" MaxHeight="160" MaxWidth="166" Margin="4"/>
+                            </Border>
+                            <TextBlock Text="{Binding SelectedRoom.Name}" FontFamily="Segoe UI" FontSize="11"
+                                       Foreground="{StaticResource TextPrimaryBrush}" TextAlignment="Center"
+                                       Margin="0,8,0,2" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding SelectedRoom.Cabinet}" FontFamily="Segoe UI" FontSize="10"
+                                       Foreground="{StaticResource TextMutedBrush}" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Border>
         </Grid>
         <Grid Grid.Column="2">

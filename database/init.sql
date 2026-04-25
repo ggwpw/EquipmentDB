@@ -11,6 +11,7 @@ CREATE TABLE rooms (
     cabinet     VARCHAR(20)  NOT NULL UNIQUE,
     name        VARCHAR(100) NOT NULL,
     capacity    INT          NOT NULL DEFAULT 0,
+    photo_path  VARCHAR(500),
     CONSTRAINT chk_capacity CHECK (capacity >= 0)
 );
 
