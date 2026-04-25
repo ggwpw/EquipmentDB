@@ -23,7 +23,7 @@
             <TextBlock Text="Логин" Style="{StaticResource FormLabel}"/>
             <TextBox x:Name="LoginBox"
                      Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="8,8" FontSize="13"
+                     Padding="8,8" FontSize="13" Foreground="#1A1A2E" CaretBrush="#1A1A2E"
                      KeyDown="OnKeyDown"/>
 
             <TextBlock Text="Пароль" Style="{StaticResource FormLabel}"/>
@@ -36,6 +36,8 @@
                         <Setter Property="BorderBrush"     Value="{StaticResource BorderBrush2}"/>
                         <Setter Property="BorderThickness" Value="1"/>
                         <Setter Property="Background"      Value="White"/>
+                        <Setter Property="Foreground"      Value="#1A1A2E"/>
+                        <Setter Property="CaretBrush"      Value="#1A1A2E"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="PasswordBox">
@@ -44,7 +46,7 @@
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{TemplateBinding BorderThickness}"
                                             CornerRadius="5">
-                                        <ScrollViewer x:Name="PART_ContentHost" Margin="8,6"/>
+                                        <ScrollViewer x:Name="PART_ContentHost" Margin="8,8"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsFocused" Value="True">
