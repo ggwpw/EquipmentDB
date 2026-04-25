@@ -176,8 +176,6 @@ public partial class RoomDialog : Window
     }
     private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
 }
-    private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
-}
 
 public partial class StaffDialog : Window
 {
