@@ -63,4 +63,11 @@ public class SuccessConverter : IValueConverter
 {
     public object Convert(object v, Type t, object p, CultureInfo c) => v is true ? "Успешно" : "Неудача";
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+
+public class InvNullToVisibilityConverter : IValueConverter
+{
+    public object Convert(object v, Type t, object p, CultureInfo c)
+        => v == null ? Visibility.Visible : Visibility.Collapsed;
+    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+}
 }

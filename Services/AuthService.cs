@@ -15,64 +15,21 @@ public static class AuthService
     public static LoginResponse Login(string login, string password)
     {
         using var ctx = new AppDbContext();
+        var user = ctx.Users.Include(u => u.Staff).FirstOrDefault(u => u.Login == login);
 
-        // Явный SQL-запрос чтобы исключить проблемы маппинга EF
-        var user = ctx.Users
-            .Include(u => u.Staff)
-            .FirstOrDefault(u => u.Login == login);
+        if (user == null) { WriteHistory(null, false); return new(LoginResult.InvalidCredentials, MaxAttempts); }
+        if (!user.IsActive) { WriteHistory(user.Id, false); return new(LoginResult.AccountLocked, 0); }
 
-        if (user == null)
-        {
-            WriteHistory(null, false);
-            return new(LoginResult.InvalidCredentials, MaxAttempts);
-        }
-
-        if (!user.IsActive)
-        {
-            WriteHistory(user.Id, false);
-            return new(LoginResult.AccountLocked, 0);
-        }
-
-        bool ok = false;
-        string? debugInfo = null;
-
-        try
-        {
-            ok = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-
-#if DEBUG
-            debugInfo = $"Login: {login}\n" +
-                        $"Input pwd: {password}\n" +
-                        $"Hash in DB: {user.PasswordHash}\n" +
-                        $"Hash length: {user.PasswordHash?.Length}\n" +
-                        $"FailedAttempts: {user.FailedAttempts}\n" +
-                        $"IsActive: {user.IsActive}\n" +
-                        $"BCrypt.Verify result: {ok}";
-
-            MessageBox.Show(debugInfo, "AUTH DEBUG",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-#endif
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"BCrypt.Verify exception:\n{ex.Message}\n\nHash: {user.PasswordHash}",
-                "BCrypt ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-            return new(LoginResult.InvalidCredentials, MaxAttempts - user.FailedAttempts);
-        }
+        bool ok;
+        try { ok = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash); }
+        catch { ok = false; }
 
         if (!ok)
         {
             user.FailedAttempts++;
             int left = MaxAttempts - user.FailedAttempts;
-            if (left <= 0)
-            {
-                user.IsActive = false;
-                ctx.SaveChanges();
-                WriteHistory(user.Id, false);
-                return new(LoginResult.AccountLocked, 0);
-            }
-            ctx.SaveChanges();
-            WriteHistory(user.Id, false);
+            if (left <= 0) { user.IsActive = false; ctx.SaveChanges(); WriteHistory(user.Id, false); return new(LoginResult.AccountLocked, 0); }
+            ctx.SaveChanges(); WriteHistory(user.Id, false);
             return new(LoginResult.InvalidCredentials, left);
         }
 
@@ -83,42 +40,29 @@ public static class AuthService
         return new(LoginResult.Success);
     }
 
-    /// <summary>DEV ONLY — пересоздаёт хэши через BCrypt.Net и снимает блокировки</summary>
     public static void DevResetPasswords()
     {
         using var ctx = new AppDbContext();
         var defaults = new Dictionary<string, string>
         {
-            ["admin"]    = "admin123",
-            ["operator"] = "oper123",
-            ["observer"] = "obs123"
+            ["admin"] = "admin123", ["operator"] = "oper123", ["observer"] = "obs123"
         };
-
-        var sb = new System.Text.StringBuilder();
         foreach (var u in ctx.Users.ToList())
         {
-            u.IsActive       = true;
-            u.FailedAttempts = 0;
+            u.IsActive = true; u.FailedAttempts = 0;
             if (defaults.TryGetValue(u.Login, out var pwd))
-            {
                 u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(pwd, workFactor: 11);
-                sb.AppendLine($"{u.Login}: {u.PasswordHash}");
-            }
         }
         ctx.SaveChanges();
-
-        MessageBox.Show(
-            $"Готово! Новые хэши:\n\n{sb}\nadmin/admin123, operator/oper123, observer/obs123",
-            "DEV Reset", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show("Готово!\n\nadmin / admin123\noperator / oper123\nobserver / obs123\n\nБлокировки сняты.",
+            "DEV: Сброс", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     public static bool ChangePassword(int userId, string current, string newPwd)
     {
         using var ctx = new AppDbContext();
-        var user = ctx.Users.Find(userId);
-        if (user == null) return false;
-        try { if (!BCrypt.Net.BCrypt.Verify(current, user.PasswordHash)) return false; }
-        catch { return false; }
+        var user = ctx.Users.Find(userId); if (user == null) return false;
+        try { if (!BCrypt.Net.BCrypt.Verify(current, user.PasswordHash)) return false; } catch { return false; }
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPwd, workFactor: 11);
         ctx.SaveChanges();
         LogService.Log("Смена пароля", $"Пользователь {user.Login} сменил пароль", "users", userId);
@@ -130,12 +74,7 @@ public static class AuthService
         try
         {
             using var ctx = new AppDbContext();
-            ctx.LoginHistory.Add(new LoginHistory
-            {
-                UserId  = userId,
-                PcName  = Environment.MachineName,
-                Success = success
-            });
+            ctx.LoginHistory.Add(new LoginHistory { UserId = userId, PcName = Environment.MachineName, Success = success });
             ctx.SaveChanges();
         }
         catch { }

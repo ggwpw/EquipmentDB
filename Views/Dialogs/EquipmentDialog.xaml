@@ -1,7 +1,7 @@
 <Window x:Class="EquipmentDB.Views.Dialogs.EquipmentDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Оборудование" Height="540" Width="500"
+        Title="Оборудование" Height="560" Width="520"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         Background="{StaticResource SurfaceBrush}">
     <Grid Margin="24">
@@ -9,49 +9,85 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
         <TabControl Grid.Row="0" BorderThickness="0" Background="Transparent">
+
+            <!-- Основное -->
             <TabItem Header="Основное">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
                     <StackPanel>
                         <TextBlock Text="Инвентарный номер *" Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding InventoryNumber, UpdateSourceTrigger=PropertyChanged}"/>
+
                         <TextBlock Text="Название *" Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+
                         <TextBlock Text="Тип оборудования *" Style="{StaticResource FormLabel}"/>
-                        <ComboBox ItemsSource="{Binding Types}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding TypeId}"/>
+                        <ComboBox ItemsSource="{Binding Types}" DisplayMemberPath="Name"
+                                  SelectedValuePath="Id" SelectedValue="{Binding TypeId}"/>
+
                         <TextBlock Text="Класс *" Style="{StaticResource FormLabel}"/>
-                        <ComboBox ItemsSource="{Binding Rooms}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding RoomId}"/>
+                        <ComboBox ItemsSource="{Binding Rooms}" DisplayMemberPath="Name"
+                                  SelectedValuePath="Id" SelectedValue="{Binding RoomId}"/>
+
                         <TextBlock Text="Состояние *" Style="{StaticResource FormLabel}"/>
-                        <ComboBox ItemsSource="{Binding Statuses}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding StatusId}"/>
+                        <ComboBox ItemsSource="{Binding Statuses}" DisplayMemberPath="Name"
+                                  SelectedValuePath="Id" SelectedValue="{Binding StatusId}"/>
+
                         <TextBlock Text="Дата поступления *" Style="{StaticResource FormLabel}"/>
                         <DatePicker SelectedDate="{Binding ArrivalDateDt}"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
+            <!-- Характеристики -->
             <TabItem Header="Характеристики">
                 <StackPanel Margin="0,8,0,0">
                     <TextBlock Text="Технические характеристики" Style="{StaticResource FormLabel}"/>
                     <TextBox Text="{Binding Specs, UpdateSourceTrigger=PropertyChanged}"
-                             Height="200" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                             Height="220" TextWrapping="Wrap" AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"/>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Фото">
+
+            <!-- Фото -->
+            <TabItem Header="📷 Фото">
                 <StackPanel Margin="0,8,0,0">
-                    <TextBlock Text="Путь к файлу фотографии" Style="{StaticResource FormLabel}"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Text="{Binding PhotoPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0"/>
-                        <Button Grid.Column="1" Content="Обзор…" Style="{StaticResource BtnSecondary}" Click="OnBrowsePhoto"/>
-                    </Grid>
-                    <Border Margin="0,12,0,0" Height="200" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" Background="White">
-                        <Image Stretch="Uniform" Margin="8" Source="{Binding PhotoPath}"/>
+                    <!-- Кнопки -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="📂 Выбрать файл" Style="{StaticResource BtnPrimary}"
+                                Click="OnBrowsePhoto" Margin="0,0,8,0"/>
+                        <Button Content="🗑 Удалить фото" Style="{StaticResource BtnDanger}"
+                                Click="OnRemovePhoto" Margin="0,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Путь (только чтение, для информации) -->
+                    <TextBlock Text="{Binding PhotoFileName}" FontFamily="Segoe UI"
+                               FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                               TextTrimming="CharacterEllipsis" Margin="0,0,0,8"
+                               ToolTip="{Binding PhotoPath}"/>
+
+                    <!-- Превью -->
+                    <Border Height="220" BorderBrush="{StaticResource BorderBrush2}"
+                            BorderThickness="1" CornerRadius="6" Background="{StaticResource SurfaceBrush}">
+                        <Grid>
+                            <!-- Заглушка если нет фото -->
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Visibility="{Binding PhotoPath, Converter={StaticResource InvNullToVis}}">
+                                <TextBlock Text="🖼" FontSize="40" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Фото не выбрано" FontFamily="Segoe UI" FontSize="12"
+                                           Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <!-- Превью -->
+                            <Image x:Name="PhotoPreview" Stretch="Uniform" Margin="8"
+                                   Visibility="{Binding PhotoPath, Converter={StaticResource NullToVis}}"/>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </TabItem>
         </TabControl>
+
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Отмена"    Style="{StaticResource BtnSecondary}" Width="90"  Margin="0,0,8,0" Click="OnCancel"/>
             <Button Content="Сохранить" Style="{StaticResource BtnPrimary}"   Width="100" Click="OnSave"/>

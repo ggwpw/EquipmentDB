@@ -1,3 +1,4 @@
+using System.Windows.Media.Imaging;
 using System.Windows;
 using EquipmentDB.Data;
 using EquipmentDB.Models;
@@ -14,6 +15,7 @@ public class EquipmentDialogVm : ViewModels.BaseViewModel
     private int _typeId, _roomId, _statusId;
     private DateTime _arrivalDt = DateTime.Today;
     private string? _specs, _photoPath;
+
     public string InventoryNumber { get => _inv;       set => Set(ref _inv, value); }
     public string Name            { get => _name;      set => Set(ref _name, value); }
     public int    TypeId          { get => _typeId;    set => Set(ref _typeId, value); }
@@ -21,7 +23,18 @@ public class EquipmentDialogVm : ViewModels.BaseViewModel
     public int    StatusId        { get => _statusId;  set => Set(ref _statusId, value); }
     public DateTime ArrivalDateDt { get => _arrivalDt; set => Set(ref _arrivalDt, value); }
     public string? Specs          { get => _specs;     set => Set(ref _specs, value); }
-    public string? PhotoPath      { get => _photoPath; set => Set(ref _photoPath, value); }
+
+    // PhotoPath — хранит относительный путь "Photos\ИНВ-00001.jpg"
+    public string? PhotoPath
+    {
+        get => _photoPath;
+        set { Set(ref _photoPath, value); OnPropertyChanged(nameof(PhotoFileName)); OnPropertyChanged(nameof(PhotoAbsPath)); }
+    }
+    // Только имя файла для отображения
+    public string PhotoFileName => System.IO.Path.GetFileName(_photoPath) ?? "Фото не выбрано";
+    // Абсолютный путь для Image.Source
+    public string? PhotoAbsPath => EquipmentDB.Services.PhotoService.ResolveAbsolutePath(_photoPath);
+
     public List<EquipmentType> Types    { get; set; } = [];
     public List<Room>          Rooms    { get; set; } = [];
     public List<Status>        Statuses { get; set; } = [];
@@ -48,6 +61,25 @@ public partial class EquipmentDialog : Window
             _vm.Specs = item.Specs; _vm.PhotoPath = item.PhotoPath;
         }
         DataContext = _vm;
+        UpdatePhotoPreview();
+    }
+
+    private void UpdatePhotoPreview()
+    {
+        var abs = _vm.PhotoAbsPath;
+        if (abs != null && System.IO.File.Exists(abs))
+        {
+            var bmp = new System.Windows.Media.Imaging.BitmapImage();
+            bmp.BeginInit();
+            bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            bmp.UriSource = new Uri(abs, UriKind.Absolute);
+            bmp.EndInit();
+            PhotoPreview.Source = bmp;
+        }
+        else
+        {
+            PhotoPreview.Source = null;
+        }
     }
 
     private void OnSave(object s, RoutedEventArgs e)
@@ -92,7 +124,34 @@ public partial class EquipmentDialog : Window
     private void OnBrowsePhoto(object s, RoutedEventArgs e)
     {
         var d = new OpenFileDialog { Filter = "Изображения|*.jpg;*.jpeg;*.png;*.bmp;*.gif" };
-        if (d.ShowDialog() == true) _vm.PhotoPath = d.FileName;
+        if (d.ShowDialog() != true) return;
+
+        // Копируем в папку Photos рядом с exe, имя файла = инв.номер
+        try
+        {
+            var invNum = _vm.InventoryNumber.Trim();
+            if (string.IsNullOrWhiteSpace(invNum))
+            { MessageBox.Show("Сначала введите инвентарный номер.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+            _vm.PhotoPath = PhotoService.CopyPhoto(d.FileName, invNum);
+            UpdatePhotoPreview();
+        }
+        catch (Exception ex)
+        {
+            // Если копирование не удалось — сохраняем абсолютный путь
+            _vm.PhotoPath = d.FileName;
+            UpdatePhotoPreview();
+            MessageBox.Show($"Не удалось скопировать файл:
+{ex.Message}
+
+Путь сохранён как абсолютный.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void OnRemovePhoto(object s, RoutedEventArgs e)
+    {
+        _vm.PhotoPath = null;
+        PhotoPreview.Source = null;
     }
 }
 

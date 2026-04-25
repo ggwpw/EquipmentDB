@@ -11,6 +11,7 @@
     <conv:NullToVisibilityInverseConverter x:Key="NullToVisInv"/>
     <conv:DateOnlyConverter                x:Key="DateOnlyConv"/>
     <conv:SuccessConverter                 x:Key="SuccessConv"/>
+    <conv:InvNullToVisibilityConverter     x:Key="InvNullToVis"/>
 
     <SolidColorBrush x:Key="PrimaryBrush"      Color="#1E3A5F"/>
     <SolidColorBrush x:Key="PrimaryLightBrush" Color="#2D5FA6"/>

@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
+using ClosedXML.Excel;
 using EquipmentDB.Data;
 using EquipmentDB.Helpers;
 using EquipmentDB.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 
 namespace EquipmentDB.ViewModels;
 
@@ -28,10 +31,12 @@ public class ReportsViewModel : BaseViewModel
     ];
 
     public ICommand RefreshCommand { get; }
+    public ICommand ExportCommand  { get; }
 
     public ReportsViewModel()
     {
         RefreshCommand = new RelayCommand(_ => _ = LoadReportAsync());
+        ExportCommand  = new RelayCommand(_ => ExportToExcel());
         _ = LoadReportAsync();
     }
 
@@ -42,34 +47,122 @@ public class ReportsViewModel : BaseViewModel
         {
             case 0:
                 ReportTitle = "Инвентарная ведомость по классам";
-                var inv = await ctx.Equipment.Include(e => e.Room).Include(e => e.Type).Include(e => e.Status)
+                var inv = await ctx.Equipment
+                    .Include(e => e.Room).Include(e => e.Type).Include(e => e.Status)
                     .OrderBy(e => e.Room.Cabinet).ThenBy(e => e.InventoryNumber)
                     .Select(e => new { Класс = e.Room.Cabinet + " " + e.Room.Name, Инв_номер = e.InventoryNumber, Название = e.Name, Тип = e.Type.Name, Состояние = e.Status.Name, Дата = e.ArrivalDate.ToString() })
                     .ToListAsync();
                 ReportData = new ObservableCollection<object>(inv.Cast<object>());
                 break;
+
             case 1:
                 ReportTitle = "Сводка по состоянию оборудования";
                 var sum = await ctx.Equipment.GroupBy(e => e.Status.Name)
                     .Select(g => new { Состояние = g.Key, Количество = g.Count() }).ToListAsync();
                 ReportData = new ObservableCollection<object>(sum.Cast<object>());
                 break;
+
             case 2:
                 ReportTitle = "Аналитика по типам оборудования";
                 var typ = await ctx.Equipment.GroupBy(e => e.Type.Name)
-                    .Select(g => new { Тип = g.Key, Всего = g.Count(), Исправно = g.Count(e => e.Status.Name == "Исправно"), В_ремонте = g.Count(e => e.Status.Name == "В ремонте"), Списано = g.Count(e => e.Status.Name == "Списано") })
+                    .Select(g => new { Тип = g.Key, Всего = g.Count(),
+                        Исправно  = g.Count(e => e.Status.Name == "Исправно"),
+                        В_ремонте = g.Count(e => e.Status.Name == "В ремонте"),
+                        Списано   = g.Count(e => e.Status.Name == "Списано") })
                     .OrderByDescending(g => g.Всего).ToListAsync();
                 ReportData = new ObservableCollection<object>(typ.Cast<object>());
                 break;
+
             case 3:
                 ReportTitle = "Журнал событий за последние 7 дней";
                 var from = DateTime.Today.AddDays(-7);
-                var log = await ctx.EventLog.Include(e => e.User).Where(e => e.EventTime >= from)
-                    .OrderByDescending(e => e.EventTime)
-                    .Select(e => new { Время = e.EventTime.ToString("dd.MM.yyyy HH:mm"), Пользователь = e.User != null ? e.User.Login : "—", Событие = e.EventType, Описание = e.Description })
+                var log = await ctx.EventLog.Include(e => e.User)
+                    .Where(e => e.EventTime >= from).OrderByDescending(e => e.EventTime)
+                    .Select(e => new { Время = e.EventTime.ToString("dd.MM.yyyy HH:mm"), Пользователь = e.User != null ? e.User.Login : "—", ПК = e.User != null ? "" : "—", Событие = e.EventType, Описание = e.Description })
                     .ToListAsync();
                 ReportData = new ObservableCollection<object>(log.Cast<object>());
                 break;
+        }
+    }
+
+    private void ExportToExcel()
+    {
+        if (ReportData.Count == 0)
+        { MessageBox.Show("Нет данных для экспорта.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+        var dlg = new SaveFileDialog
+        {
+            Filter   = "Excel|*.xlsx",
+            FileName = $"{ReportTitle.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd}"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.AddWorksheet(ReportTitle.Length > 31 ? ReportTitle[..31] : ReportTitle);
+
+            // Заголовок
+            ws.Cell(1, 1).Value = ReportTitle;
+            ws.Cell(1, 1).Style.Font.Bold     = true;
+            ws.Cell(1, 1).Style.Font.FontSize = 14;
+            ws.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#1E3A5F");
+
+            ws.Cell(2, 1).Value = $"Сформировано: {DateTime.Now:dd.MM.yyyy HH:mm}";
+            ws.Cell(2, 1).Style.Font.Italic    = true;
+            ws.Cell(2, 1).Style.Font.FontColor = XLColor.Gray;
+
+            // Получаем свойства через рефлексию
+            var first = ReportData[0];
+            var props = first.GetType().GetProperties();
+
+            // Шапка таблицы
+            for (int i = 0; i < props.Length; i++)
+            {
+                var cell = ws.Cell(4, i + 1);
+                cell.Value = props[i].Name.Replace("_", " ");
+                cell.Style.Font.Bold = true;
+                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E3A5F");
+                cell.Style.Font.FontColor = XLColor.White;
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            }
+
+            // Данные
+            for (int r = 0; r < ReportData.Count; r++)
+            {
+                var item = ReportData[r];
+                for (int c = 0; c < props.Length; c++)
+                {
+                    var cell = ws.Cell(r + 5, c + 1);
+                    cell.Value = props[c].GetValue(item)?.ToString() ?? "";
+                    if (r % 2 == 1)
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#F0F5FF");
+                }
+            }
+
+            ws.Range(ws.Cell(4, 1), ws.Cell(ReportData.Count + 4, props.Length))
+              .Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            ws.Range(ws.Cell(4, 1), ws.Cell(ReportData.Count + 4, props.Length))
+              .Style.Border.InsideBorder  = XLBorderStyleValues.Hair;
+
+            ws.Columns().AdjustToContents();
+            // Объединяем ячейки заголовка по всей ширине
+            ws.Range(ws.Cell(1, 1), ws.Cell(1, props.Length)).Merge();
+            ws.Range(ws.Cell(2, 1), ws.Cell(2, props.Length)).Merge();
+
+            wb.SaveAs(dlg.FileName);
+
+            // Открыть файл сразу
+            var result = MessageBox.Show("Экспорт завершён. Открыть файл?", "Готово",
+                MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if (result == MessageBoxResult.Yes)
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dlg.FileName) { UseShellExecute = true });
+
+            Services.LogService.Log("Экспорт Excel", $"Экспортирован отчёт: {ReportTitle} ({ReportData.Count} строк)");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка экспорта:\n{ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
