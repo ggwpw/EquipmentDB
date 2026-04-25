@@ -21,8 +21,15 @@
                 </Border>
                 <Border DockPanel.Dock="Bottom" Padding="16,12" BorderBrush="#1A2E4A" BorderThickness="0,1,0,0">
                     <StackPanel>
-                        <TextBlock Text="{Binding UserLogin}" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
-                        <TextBlock Text="{Binding UserRoleDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="#7BA3CC" Margin="0,2,0,8"/>
+                        <!-- ФИО (или логин если нет сотрудника) -->
+                        <TextBlock Text="{Binding UserFullName}" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap"/>
+                        <!-- Роль • (логин) -->
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                            <TextBlock Text="{Binding UserRoleDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="#7BA3CC"/>
+                            <TextBlock Text=" • (" FontFamily="Segoe UI" FontSize="11" Foreground="#4A6A8A"/>
+                            <TextBlock Text="{Binding UserLogin}"       FontFamily="Segoe UI" FontSize="11" Foreground="#4A6A8A"/>
+                            <TextBlock Text=")"                         FontFamily="Segoe UI" FontSize="11" Foreground="#4A6A8A"/>
+                        </StackPanel>
                         <Button Content="Выйти" Style="{StaticResource BtnNav}" Foreground="#E87C7C" Command="{Binding LogoutCommand}" HorizontalAlignment="Left" Padding="0,4"/>
                     </StackPanel>
                 </Border>

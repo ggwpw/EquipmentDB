@@ -14,6 +14,10 @@ public class MainViewModel : BaseViewModel
     public string UserLogin       => CurrentSession.User?.Login ?? "";
     public string UserRoleDisplay => CurrentSession.User?.Role switch
     { "admin" => "Администратор", "operator" => "Оператор", "observer" => "Наблюдатель", _ => "" };
+    // ФИО из привязанного сотрудника; если не задано — показываем логин
+    public string UserFullName    => CurrentSession.User?.Staff?.FullName
+                                     ?? CurrentSession.User?.Login
+                                     ?? "";
     public bool IsAdmin => CurrentSession.IsAdmin;
     public bool CanEdit => CurrentSession.CanEdit;
 

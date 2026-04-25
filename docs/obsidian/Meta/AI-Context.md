@@ -128,3 +128,66 @@ LogService.Log("Тип события", "Описание", "таблица", re
 ## Текущие проблемы
 
 > Смотри [[../Errors/Error-Log]]
+
+---
+
+## Changelog (последние изменения)
+
+### Сессия 2 — fixes batch 1
+
+**Модели:**
+- `EventLogEntry` → добавлено поле `MachineName` (VARCHAR 100)
+- `database/init.sql` обновлён; `database/migrate_add_machine_name.sql` — для апдейта существующей БД
+
+**Helpers.cs — новые attached behaviors:**
+- `PhoneMask.IsEnabled="True"` на TextBox → маска `+7 (XXX) XXX-XX-XX`
+- `DataGridHelper.EnableCopyRow="True"` на DataGrid → ПКМ → «Копировать строку»
+
+**Конвертеры (Converters.cs):**
+- `NullToVisibilityInverseConverter` → ключ `NullToVisInv` — показывает элемент когда значение NULL (для placeholder в ComboBox)
+
+**EquipmentViewModel:**
+- Разделён на `LoadAsync()` (полная, при старте) и `LoadItemsAsync()` (только Items, при фильтрации)
+- Guard `if (_filterRoomId == value) return;` — предотвращает рекурсивный ресет ComboBox
+
+**Views/Dialogs:**
+- `StaffDialog.xaml` Height 380→420, телефон использует `helpers:PhoneMask.IsEnabled`
+- `RoomDialog.xaml` Height 280→310, CapacityBox → `UpdateSourceTrigger=LostFocus` + failsafe в OnSave
+
+**MainViewModel + MainWindow sidebar:**
+- Добавлено свойство `UserFullName` → `User.Staff.FullName ?? User.Login`
+- Sidebar показывает: **ФИО** (bold белый) → **Роль • (логин)** (приглушённый синий)
+- Новый пункт меню «🗄 Редактор БД» — только для admin
+
+**Новые файлы:**
+- `ViewModels/DatabaseEditorViewModel.cs` — admin raw table editor (ComboBox + DataGrid + Save/Discard)
+- `Views/Pages/DatabaseEditorPage.xaml` + `.cs`
+
+**UsersViewModel:** блокировка самого себя защищена guard-ом
+
+**EventLogViewModel:** автообновление каждые 30 сек (DispatcherTimer)
+
+**Все DataGrid на страницах:** `helpers:DataGridHelper.EnableCopyRow="True"` → ПКМ копирует строку в буфер
+
+---
+
+## Что передать следующей нейронке
+
+> Скопируй целиком в первое сообщение
+
+```
+Репозиторий: https://github.com/ggwpw/EquipmentDB
+Токен: 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
+
+Сделай git clone с токеном и прочитай:
+  docs/obsidian/Meta/AI-Context.md — главный контекст
+  docs/obsidian/Meta/Conventions.md — соглашения по коду
+  docs/obsidian/UI/Windows-and-Pages.xaml — описание всех страниц
+
+Стек: WPF / .NET 8 / MySQL 8 / EF Core (Pomelo) / MVVM / BCrypt
+Главные файлы: Helpers/Helpers.cs, Converters/Converters.cs,
+               Resources/Styles.xaml, Data/AppDbContext.cs,
+               ViewModels/MainViewModel.cs, Services/LogService.cs
+
+Текущая задача: [ВСТАВЬ СВОЮ ЗАДАЧУ]
+```
