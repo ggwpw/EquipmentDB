@@ -23,7 +23,9 @@
             <TextBlock Text="Логин" Style="{StaticResource FormLabel}"/>
             <TextBox x:Name="LoginBox"
                      Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="8,8" FontSize="13" Foreground="#1A1A2E" CaretBrush="#1A1A2E"
+                     Padding="8,8" FontSize="13"
+                     Foreground="#1A1A2E" CaretBrush="#1A1A2E"
+                     SelectionBrush="#4A90D9" SelectionTextBrush="White"
                      KeyDown="OnKeyDown"/>
 
             <TextBlock Text="Пароль" Style="{StaticResource FormLabel}"/>
@@ -38,6 +40,8 @@
                         <Setter Property="Background"      Value="White"/>
                         <Setter Property="Foreground"      Value="#1A1A2E"/>
                         <Setter Property="CaretBrush"      Value="#1A1A2E"/>
+                        <Setter Property="SelectionBrush"  Value="#4A90D9"/>
+                        <Setter Property="SelectionTextBrush" Value="White"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="PasswordBox">
