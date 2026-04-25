@@ -46,9 +46,14 @@ public class NullToVisibilityConverter : IValueConverter
     public object Convert(object v, Type t, object p, CultureInfo c) => v != null ? Visibility.Visible : Visibility.Collapsed;
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
 }
+public class InvNullToVisibilityConverter : IValueConverter
+{
+    // Null -> Visible (для заглушки "фото не выбрано")
+    public object Convert(object v, Type t, object p, CultureInfo c) => v == null ? Visibility.Visible : Visibility.Collapsed;
+    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+}
 public class NullToVisibilityInverseConverter : IValueConverter
 {
-    // Returns Visible when value IS null (used for placeholder text)
     public object Convert(object v, Type t, object p, CultureInfo c) => v == null ? Visibility.Visible : Visibility.Collapsed;
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
 }
@@ -63,11 +68,4 @@ public class SuccessConverter : IValueConverter
 {
     public object Convert(object v, Type t, object p, CultureInfo c) => v is true ? "Успешно" : "Неудача";
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
-
-public class InvNullToVisibilityConverter : IValueConverter
-{
-    public object Convert(object v, Type t, object p, CultureInfo c)
-        => v == null ? Visibility.Visible : Visibility.Collapsed;
-    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
-}
 }

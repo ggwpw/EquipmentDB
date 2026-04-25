@@ -141,10 +141,7 @@ public partial class EquipmentDialog : Window
             // Если копирование не удалось — сохраняем абсолютный путь
             _vm.PhotoPath = d.FileName;
             UpdatePhotoPreview();
-            MessageBox.Show($"Не удалось скопировать файл:
-{ex.Message}
-
-Путь сохранён как абсолютный.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show($"Не удалось скопировать файл:\n{ex.Message}\n\nПуть сохранён как абсолютный.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
