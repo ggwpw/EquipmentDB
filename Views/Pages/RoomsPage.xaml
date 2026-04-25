@@ -43,7 +43,7 @@
                             <TextBlock Text="ФОТО КЛАССА" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
                             <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
-                                    Background="{StaticResource BackgroundBrush}">
+                                    Background="{StaticResource SurfaceBrush}">
                                 <Image Source="{Binding SelectedRoom.PhotoPath, Converter={StaticResource PathToImage}}"
                                        Stretch="Uniform" MaxHeight="160" MaxWidth="166" Margin="4"/>
                             </Border>
