@@ -66,7 +66,7 @@
                         BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1,0,0,0"
                         Visibility="{Binding Selected.PhotoPath, Converter={StaticResource NullToVis}}">
                     <StackPanel Margin="12" VerticalAlignment="Top">
-                        <TextBlock Text="ФОТО" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                        <TextBlock Text="ФОТО" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,8"/>
                         <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
                                 Background="{StaticResource BackgroundBrush}">
