@@ -94,6 +94,8 @@
         <Setter Property="BorderBrush"     Value="{StaticResource BorderBrush2}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"      Value="White"/>
+        <Setter Property="Foreground"      Value="#1A1A2E"/>
+        <Setter Property="CaretBrush"      Value="#1A1A2E"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -103,6 +105,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="1.5"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -117,6 +120,8 @@
         <Setter Property="BorderBrush"     Value="{StaticResource BorderBrush2}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"      Value="White"/>
+        <Setter Property="Foreground"      Value="#1A1A2E"/>
+        <Setter Property="CaretBrush"      Value="#1A1A2E"/>
     </Style>
 
     <Style TargetType="ComboBox">
