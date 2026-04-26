@@ -1,1 +1,65 @@
-Nothing should be ignored based on the provided file changes. The only modified file is 'ViewModels/EventLogViewModel.cs', which is a source code file and should not be added to .gitignore.
+```
+# Compiled and build artifacts
+*.exe
+*.dll
+*.so
+*.a
+*.obj
+*.out
+bin/
+obj/
+Debug/
+Release/
+
+# Dependencies
+packages/
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+.Python
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.userprefs
+*.suo
+*.user
+*.aps
+*.ncb
+*.ilk
+*.iobj
+*.ipdb
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Build results
+dist/
+build/
+target/
+out/
+coverage/
+htmlcov/
+.coverage
+.nyc_output/
+```

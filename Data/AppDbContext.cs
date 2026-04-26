@@ -32,6 +32,10 @@ public class AppDbContext : DbContext
         m.Entity<EventLogEntry>().ToTable("event_log");
         m.Entity<LoginHistory>().ToTable("login_history");
 
+        // Явное указание имени колонки для MachineName и PcName
+        m.Entity<EventLogEntry>().Property(e => e.MachineName).HasColumnName("machine_name");
+        m.Entity<LoginHistory>().Property(l => l.PcName).HasColumnName("pc_name");
+
         m.Entity<Staff>().HasOne(s => s.Room).WithMany(r => r.Staff)
             .HasForeignKey(s => s.RoomId).OnDelete(DeleteBehavior.SetNull);
         m.Entity<User>().HasOne(u => u.Staff).WithMany(s => s.Users)

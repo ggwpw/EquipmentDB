@@ -50,40 +50,10 @@ public class EventLogViewModel : BaseViewModel
             Entries = new ObservableCollection<EventLogEntry>(
                 await q.OrderByDescending(e => e.EventTime).ToListAsync());
         }
-        catch (MySqlException ex) when (ex.Message.Contains("Unknown column") || ex.Message.Contains("machine_name"))
-        {
-            // Колонка machine_name ещё не добавлена в БД — игнорируем эту ошибку, данные загрузятся
-            await LoadWithoutMachineNameCheckAsync();
-        }
         catch (Exception ex)
         {
             System.Windows.MessageBox.Show(
                 $"Ошибка загрузки журнала:\n\n{ex.Message}",
-                "Журнал событий", System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Warning);
-        }
-    }
-    
-    private async Task LoadWithoutMachineNameCheckAsync()
-    {
-        try
-        {
-            await using var ctx = new AppDbContext();
-            var toEnd = To.Date.AddDays(1);
-            
-            IQueryable<EventLogEntry> q = ctx.EventLog.Include(e => e.User)
-                .Where(e => e.EventTime >= From && e.EventTime < toEnd);
-            
-            if (!string.IsNullOrWhiteSpace(SearchUser))
-                q = q.Where(e => e.User != null && e.User.Login.Contains(SearchUser));
-                
-            Entries = new ObservableCollection<EventLogEntry>(
-                await q.OrderByDescending(e => e.EventTime).ToListAsync());
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                $"Ошибка загрузки журнала:\n\n{ex.Message}\n\nЗапусти для полного функционала:\ndatabase/migrate_add_machine_name.sql",
                 "Журнал событий", System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Warning);
         }
