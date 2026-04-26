@@ -35,21 +35,38 @@ public class ReportsViewModel : BaseViewModel
     public bool   IsChartVisible  { get => _isChartVisible;  set => Set(ref _isChartVisible, value); }
     public List<ChartBar> ChartBars { get => _chartBars;     set => Set(ref _chartBars, value); }
 
+    // Пользовательская функция: процент неисправного оборудования
+    private string _faultSummary = string.Empty;
+    public string FaultSummary { get => _faultSummary; set => Set(ref _faultSummary, value); }
+
+    /// <summary>
+    /// Рассчитывает процент неисправного оборудования (В ремонте + Списано).
+    /// Пользовательская функция C# — п.5.4 ТЗ.
+    /// </summary>
+    public static double CalcFaultPercent(int total, int faulty)
+        => total == 0 ? 0 : Math.Round(faulty * 100.0 / total, 1);
+
     public List<ReportItem> Reports { get; } =
     [
         new(0, "Инвентарная ведомость по классам"),
         new(1, "Сводка по состоянию оборудования"),
         new(2, "Аналитика по типам оборудования"),
         new(3, "Журнал событий за 7 дней"),
+        new(4, "Состояние оборудования по классам"),
     ];
 
     public ICommand RefreshCommand { get; }
     public ICommand ExportCommand  { get; }
+    public ICommand PrintCommand   { get; }
+
+    // Печать делегируется в code-behind (нужен UIElement)
+    public Action? PrintRequested;
 
     public ReportsViewModel()
     {
         RefreshCommand = new RelayCommand(_ => _ = LoadReportAsync());
         ExportCommand  = new RelayCommand(_ => ExportToExcel());
+        PrintCommand   = new RelayCommand(_ => PrintRequested?.Invoke(), _ => ReportData.Count > 0);
         _ = LoadReportAsync();
     }
 
@@ -60,6 +77,7 @@ public class ReportsViewModel : BaseViewModel
         {
             case 0:
                 IsChartVisible = false;
+                FaultSummary   = string.Empty;
                 ReportTitle = "Инвентарная ведомость по классам";
                 var inv = await ctx.Equipment
                     .Include(e => e.Room).Include(e => e.Type).Include(e => e.Status)
@@ -75,6 +93,10 @@ public class ReportsViewModel : BaseViewModel
                 var sum = await ctx.Equipment.GroupBy(e => e.Status.Name)
                     .Select(g => new { Состояние = g.Key, Количество = g.Count() }).ToListAsync();
                 ReportData = new ObservableCollection<object>(sum.Cast<object>());
+                // Процент неисправных
+                int total1  = sum.Sum(s => s.Количество);
+                int faulty1 = sum.Where(s => s.Состояние is "В ремонте" or "Списано").Sum(s => s.Количество);
+                FaultSummary = $"Всего единиц: {total1}  |  Неисправно (ремонт + списано): {faulty1}  |  {CalcFaultPercent(total1, faulty1)} %";
                 break;
 
             case 2:
@@ -102,6 +124,7 @@ public class ReportsViewModel : BaseViewModel
 
             case 3:
                 IsChartVisible = false;
+                FaultSummary   = string.Empty;
                 ReportTitle = "Журнал событий за последние 7 дней";
                 var from = DateTime.Today.AddDays(-7);
                 var log = await ctx.EventLog.Include(e => e.User)
@@ -109,6 +132,34 @@ public class ReportsViewModel : BaseViewModel
                     .Select(e => new { Время = e.EventTime.ToString("dd.MM.yyyy HH:mm"), Пользователь = e.User != null ? e.User.Login : "—", ПК = e.User != null ? "" : "—", Событие = e.EventType, Описание = e.Description })
                     .ToListAsync();
                 ReportData = new ObservableCollection<object>(log.Cast<object>());
+                break;
+
+            case 4:
+                // Перекрёстный аналитический запрос: состояние × класс (п.5.4 ТЗ)
+                IsChartVisible = false;
+                FaultSummary   = string.Empty;
+                ReportTitle = "Состояние оборудования по классам";
+                var cross = await ctx.Equipment
+                    .Include(e => e.Room).Include(e => e.Status)
+                    .GroupBy(e => e.Room.Cabinet)
+                    .Select(g => new
+                    {
+                        Класс     = g.Key,
+                        Всего     = g.Count(),
+                        Исправно  = g.Count(e => e.Status.Name == "Исправно"),
+                        В_ремонте = g.Count(e => e.Status.Name == "В ремонте"),
+                        Списано   = g.Count(e => e.Status.Name == "Списано"),
+                        Процент_неисправных = CalcFaultPercent(
+                            g.Count(),
+                            g.Count(e => e.Status.Name == "В ремонте" || e.Status.Name == "Списано")) + " %"
+                    })
+                    .OrderBy(g => g.Класс)
+                    .ToListAsync();
+                ReportData = new ObservableCollection<object>(cross.Cast<object>());
+                // Общий итог по всем классам
+                int totalAll  = cross.Sum(r => r.Всего);
+                int faultyAll = cross.Sum(r => r.В_ремонте + r.Списано);
+                FaultSummary = $"Итого по всем классам: {totalAll} ед.  |  Неисправно: {faultyAll}  |  {CalcFaultPercent(totalAll, faultyAll)} %";
                 break;
         }
     }

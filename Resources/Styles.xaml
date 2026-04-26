@@ -12,6 +12,7 @@
     <conv:DateOnlyConverter                x:Key="DateOnlyConv"/>
     <conv:SuccessConverter                 x:Key="SuccessConv"/>
     <conv:PathToImageConverter             x:Key="PathToImage"/>
+    <conv:EmptyStringToVisibilityConverter x:Key="StrToVis"/>
     <conv:InvNullToVisibilityConverter     x:Key="InvNullToVis"/>
 
     <SolidColorBrush x:Key="PrimaryBrush"      Color="#1E3A5F"/>

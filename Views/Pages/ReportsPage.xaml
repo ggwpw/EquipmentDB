@@ -12,14 +12,16 @@
             <WrapPanel>
                 <ComboBox ItemsSource="{Binding Reports}" SelectedIndex="{Binding SelectedReport}"
                           DisplayMemberPath="Name" Width="300" Margin="0,0,12,0"/>
-                <Button Content="🔄 Обновить"    Style="{StaticResource BtnSecondary}"
-                        Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
+                <Button Content="🔄 Обновить"       Style="{StaticResource BtnSecondary}"
+                        Command="{Binding RefreshCommand}" Margin="0,0,8,0" ToolTip="Обновить данные отчёта"/>
+                <Button Content="🖨 Печать"          Style="{StaticResource BtnSecondary}"
+                        Command="{Binding PrintCommand}"  Margin="0,0,8,0" ToolTip="Распечатать отчёт"/>
                 <Button Content="📥 Экспорт в Excel" Style="{StaticResource BtnPrimary}"
-                        Command="{Binding ExportCommand}"/>
+                        Command="{Binding ExportCommand}" ToolTip="Сохранить отчёт в файл Excel"/>
             </WrapPanel>
         </Border>
 
-        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
+        <Border Grid.Row="1" x:Name="PrintArea" Style="{StaticResource Card}" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -30,8 +32,14 @@
                 <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
                         BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,0,0,1"
                         Padding="16,10">
-                    <TextBlock Text="{Binding ReportTitle}" FontFamily="Segoe UI" FontSize="15"
-                               FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding ReportTitle}" FontFamily="Segoe UI" FontSize="15"
+                                   FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
+                        <!-- Строка с % неисправных — показывается только когда заполнена -->
+                        <TextBlock Text="{Binding FaultSummary}" FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="#B05000" FontWeight="SemiBold" Margin="0,4,0,0"
+                                   Visibility="{Binding FaultSummary, Converter={StaticResource StrToVis}}"/>
+                    </StackPanel>
                 </Border>
                 <!-- Диаграмма (только для отчёта "Аналитика по типам") -->
                 <Border Grid.Row="1" Padding="16,12"

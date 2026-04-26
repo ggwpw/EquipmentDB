@@ -91,3 +91,10 @@ public class PathToImageConverter : IValueConverter
     }
     public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
 }
+public class EmptyStringToVisibilityConverter : IValueConverter
+{
+    // Visible когда строка НЕ пустая
+    public object Convert(object v, Type t, object p, CultureInfo c)
+        => v is string s && !string.IsNullOrWhiteSpace(s) ? Visibility.Visible : Visibility.Collapsed;
+    public object ConvertBack(object v, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+}
