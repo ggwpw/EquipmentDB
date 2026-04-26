@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using ClosedXML.Excel;
 using EquipmentDB.Data;
 using EquipmentDB.Helpers;
@@ -12,15 +13,27 @@ namespace EquipmentDB.ViewModels;
 
 public record ReportItem(int Id, string Name);
 
+public class ChartBar
+{
+    public string Label    { get; init; } = "";
+    public int    Value    { get; init; }
+    public double BarWidth { get; init; }
+    public Brush  Color    { get; init; } = Brushes.SteelBlue;
+}
+
 public class ReportsViewModel : BaseViewModel
 {
     private int _selectedReport;
     private ObservableCollection<object> _reportData = [];
     private string _reportTitle = string.Empty;
+    private bool _isChartVisible;
+    private List<ChartBar> _chartBars = [];
 
-    public int    SelectedReport { get => _selectedReport; set { Set(ref _selectedReport, value); _ = LoadReportAsync(); } }
+    public int    SelectedReport  { get => _selectedReport;  set { Set(ref _selectedReport, value);  _ = LoadReportAsync(); } }
     public ObservableCollection<object> ReportData { get => _reportData; set => Set(ref _reportData, value); }
-    public string ReportTitle   { get => _reportTitle;   set => Set(ref _reportTitle, value); }
+    public string ReportTitle     { get => _reportTitle;     set => Set(ref _reportTitle, value); }
+    public bool   IsChartVisible  { get => _isChartVisible;  set => Set(ref _isChartVisible, value); }
+    public List<ChartBar> ChartBars { get => _chartBars;     set => Set(ref _chartBars, value); }
 
     public List<ReportItem> Reports { get; } =
     [
@@ -46,6 +59,7 @@ public class ReportsViewModel : BaseViewModel
         switch (SelectedReport)
         {
             case 0:
+                IsChartVisible = false;
                 ReportTitle = "Инвентарная ведомость по классам";
                 var inv = await ctx.Equipment
                     .Include(e => e.Room).Include(e => e.Type).Include(e => e.Status)
@@ -56,6 +70,7 @@ public class ReportsViewModel : BaseViewModel
                 break;
 
             case 1:
+                IsChartVisible = false;
                 ReportTitle = "Сводка по состоянию оборудования";
                 var sum = await ctx.Equipment.GroupBy(e => e.Status.Name)
                     .Select(g => new { Состояние = g.Key, Количество = g.Count() }).ToListAsync();
@@ -71,9 +86,22 @@ public class ReportsViewModel : BaseViewModel
                         Списано   = g.Count(e => e.Status.Name == "Списано") })
                     .OrderByDescending(g => g.Всего).ToListAsync();
                 ReportData = new ObservableCollection<object>(typ.Cast<object>());
+                // Строим диаграмму
+                int maxVal = typ.Count > 0 ? typ.Max(t => t.Всего) : 1;
+                ChartBars = typ.Select((t, i) => new ChartBar
+                {
+                    Label    = t.Тип,
+                    Value    = t.Всего,
+                    BarWidth = maxVal > 0 ? (t.Всего / (double)maxVal) * 300 : 0,
+                    Color    = i % 3 == 0 ? new SolidColorBrush(Color.FromRgb(30, 90, 160))
+                             : i % 3 == 1 ? new SolidColorBrush(Color.FromRgb(46, 160, 100))
+                             :              new SolidColorBrush(Color.FromRgb(220, 120, 40))
+                }).ToList();
+                IsChartVisible = ChartBars.Count > 0;
                 break;
 
             case 3:
+                IsChartVisible = false;
                 ReportTitle = "Журнал событий за последние 7 дней";
                 var from = DateTime.Today.AddDays(-7);
                 var log = await ctx.EventLog.Include(e => e.User)

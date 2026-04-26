@@ -31,6 +31,8 @@
                             <TextBlock Text=")"                         FontFamily="Segoe UI" FontSize="11" Foreground="#4A6A8A"/>
                         </StackPanel>
                         <Button Content="Выйти" Style="{StaticResource BtnNav}" Foreground="#E87C7C" Command="{Binding LogoutCommand}" HorizontalAlignment="Left" Padding="0,4"/>
+                        <Button Content="🔑  Сменить пароль" Style="{StaticResource BtnNav}" Foreground="#7BA3CC" Command="{Binding ChangePasswordCommand}" HorizontalAlignment="Left" Padding="0,4"
+                                ToolTip="Изменить пароль текущего пользователя"/>
                     </StackPanel>
                 </Border>
                 <StackPanel Margin="0,12,0,0">

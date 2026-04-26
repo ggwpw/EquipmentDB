@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Оборудование" Height="560" Width="520"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Closing="OnWindowClosing"
         Background="{StaticResource SurfaceBrush}">
     <Grid Margin="24">
         <Grid.RowDefinitions>

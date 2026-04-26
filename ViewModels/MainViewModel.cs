@@ -27,6 +27,7 @@ public class MainViewModel : BaseViewModel
     public ICommand NavEventLogCommand  { get; }
     public ICommand NavReportsCommand   { get; }
     public ICommand NavDbEditorCommand  { get; }
+    public ICommand ChangePasswordCommand { get; }
     public ICommand LogoutCommand       { get; }
     public event Action? LogoutRequested;
 
@@ -38,6 +39,7 @@ public class MainViewModel : BaseViewModel
         NavEventLogCommand  = new RelayCommand(_ => Go(new EventLogViewModel(),      "Журнал событий"), _ => IsAdmin);
         NavReportsCommand   = new RelayCommand(_ => Go(new ReportsViewModel(),       "Отчёты"));
         NavDbEditorCommand  = new RelayCommand(_ => Go(new DatabaseEditorViewModel(),"Редактор БД"),    _ => IsAdmin);
+        ChangePasswordCommand = new RelayCommand(_ => new Views.Dialogs.ChangePasswordDialog { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog());
         LogoutCommand       = new RelayCommand(_ => Logout());
         Go(new EquipmentViewModel(), "Оборудование");
     }

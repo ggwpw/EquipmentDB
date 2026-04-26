@@ -26,9 +26,9 @@
                                Visibility="{Binding FilterStatusId, Converter={StaticResource NullToVisInv}}"/>
                 </Grid>
                 <Button Content="Сбросить" Style="{StaticResource BtnSecondary}" Command="{Binding ClearFiltersCommand}" Margin="0,0,16,0"/>
-                <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Command="{Binding AddCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="Изменить" Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
-                <Button Content="Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteCommand}" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="+ Добавить" Style="{StaticResource BtnPrimary}" Command="{Binding AddCommand}" ToolTip="Добавить новое оборудование" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Изменить" Style="{StaticResource BtnSecondary}" Command="{Binding EditCommand}" ToolTip="Редактировать выбранную запись" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Удалить" Style="{StaticResource BtnDanger}" Command="{Binding DeleteCommand}" ToolTip="Удалить выбранную запись" Margin="0,0,6,0" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"/>
                 <Button Content="&#x1F4E5; Excel" Style="{StaticResource BtnSecondary}" Command="{Binding ExportCommand}"/>
             </WrapPanel>
         </Border>
@@ -41,6 +41,24 @@
                 <!-- Таблица оборудования -->
                 <DataGrid Grid.Column="0" helpers:DataGridHelper.EnableCopyRow="True"
                           ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status.Name}" Value="Списано">
+                                    <Setter Property="Background" Value="#FFEBEE"/>
+                                    <Setter Property="Foreground" Value="#B71C1C"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status.Name}" Value="В ремонте">
+                                    <Setter Property="Background" Value="#FFFDE7"/>
+                                    <Setter Property="Foreground" Value="#7B4A00"/>
+                                </DataTrigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Инв. номер"      Binding="{Binding InventoryNumber}" Width="120"/>
                         <DataGridTextColumn Header="Название"        Binding="{Binding Name}"            Width="*"/>

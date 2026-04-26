@@ -44,6 +44,7 @@ public partial class EquipmentDialog : Window
 {
     private readonly EquipmentDialogVm _vm = new();
     private readonly int? _editId;
+    private bool _saved; // флаг успешного сохранения
 
     public EquipmentDialog(Equipment? item)
     {
@@ -129,12 +130,25 @@ public partial class EquipmentDialog : Window
             ctx.Equipment.Add(eq); ctx.SaveChanges();
             LogService.Log("Добавление", $"Добавлено оборудование: {eq.InventoryNumber} — {eq.Name}", "equipment", eq.Id);
         }
+        _saved = true;
         DialogResult = true;
+    }
+
+    private void OnWindowClosing(object s, System.ComponentModel.CancelEventArgs e)
+    {
+        if (_saved || DialogResult == false) return;
+        // Пользователь закрыл крестиком — спрашиваем
+        if (!string.IsNullOrWhiteSpace(_vm.Name))
+        {
+            if (MessageBox.Show("Есть несохранённые данные. Закрыть?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                e.Cancel = true;
+        }
     }
 
     private void OnCancel(object s, RoutedEventArgs e)
     {
-        if (!string.IsNullOrWhiteSpace(_vm.InventoryNumber) || !string.IsNullOrWhiteSpace(_vm.Name))
+        if (!string.IsNullOrWhiteSpace(_vm.Name))
         {
             if (MessageBox.Show("Есть несохранённые данные. Закрыть?", "Подтверждение",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
@@ -323,6 +337,40 @@ public partial class ResetPasswordDialog : Window
         if (PwdBox.Password != ConfirmBox.Password) { MessageBox.Show("Пароли не совпадают.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
         if (PwdBox.Password.Length < 4) { MessageBox.Show("Минимум 4 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
         NewPassword = PwdBox.Password;
+        DialogResult = true;
+    }
+    private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
+}
+
+public partial class ChangePasswordDialog : Window
+{
+    public ChangePasswordDialog()
+    {
+        InitializeComponent();
+        Title = "Смена пароля";
+    }
+
+    private void OnSave(object s, RoutedEventArgs e)
+    {
+        var current = CurrentBox.Password;
+        var newPwd  = NewBox.Password;
+        var confirm = ConfirmBox.Password;
+
+        if (string.IsNullOrWhiteSpace(current) || string.IsNullOrWhiteSpace(newPwd))
+        { MessageBox.Show("Заполните все поля.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+        if (newPwd != confirm)
+        { MessageBox.Show("Новый пароль и подтверждение не совпадают.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+        if (newPwd.Length < 6)
+        { MessageBox.Show("Пароль должен быть не менее 6 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+        var userId = EquipmentDB.Helpers.CurrentSession.User!.Id;
+        bool ok = EquipmentDB.Services.AuthService.ChangePassword(userId, current, newPwd);
+        if (!ok)
+        { MessageBox.Show("Текущий пароль введён неверно.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
+        MessageBox.Show("Пароль успешно изменён.", "Готово", MessageBoxButton.OK, MessageBoxImage.Information);
         DialogResult = true;
     }
     private void OnCancel(object s, RoutedEventArgs e) => DialogResult = false;
