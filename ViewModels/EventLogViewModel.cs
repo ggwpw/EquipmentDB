@@ -5,6 +5,7 @@ using EquipmentDB.Data;
 using EquipmentDB.Helpers;
 using EquipmentDB.Models;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 namespace EquipmentDB.ViewModels;
 
@@ -39,17 +40,20 @@ public class EventLogViewModel : BaseViewModel
         {
             await using var ctx = new AppDbContext();
             var toEnd = To.Date.AddDays(1);
-            var q = ctx.EventLog.Include(e => e.User)
-                .Where(e => e.EventTime >= From && e.EventTime < toEnd).AsQueryable();
+            
+            IQueryable<EventLogEntry> q = ctx.EventLog.Include(e => e.User)
+                .Where(e => e.EventTime >= From && e.EventTime < toEnd);
+            
             if (!string.IsNullOrWhiteSpace(SearchUser))
                 q = q.Where(e => e.User != null && e.User.Login.Contains(SearchUser));
+                
             Entries = new ObservableCollection<EventLogEntry>(
                 await q.OrderByDescending(e => e.EventTime).ToListAsync());
         }
-        catch (Exception ex) when (ex.Message.Contains("machine_name") || ex.Message.Contains("Unknown column"))
+        catch (MySqlException ex) when (ex.Message.Contains("Unknown column") || ex.Message.Contains("machine_name"))
         {
-            // Колонка machine_name ещё не добавлена в БД — загружаем без неё
-            await LoadLegacyAsync();
+            // Колонка machine_name ещё не добавлена в БД — игнорируем эту ошибку, данные загрузятся
+            await LoadWithoutMachineNameCheckAsync();
         }
         catch (Exception ex)
         {
@@ -59,33 +63,27 @@ public class EventLogViewModel : BaseViewModel
                 System.Windows.MessageBoxImage.Warning);
         }
     }
-
-    // Fallback: запрос без колонки machine_name (для БД без миграции)
-    private async Task LoadLegacyAsync()
+    
+    private async Task LoadWithoutMachineNameCheckAsync()
     {
         try
         {
             await using var ctx = new AppDbContext();
-            // Явно указываем колонки — machine_name подставляем как NULL
-            var entries = await ctx.EventLog
-                .FromSqlRaw(
-                    "SELECT id, user_id, event_type, description, table_name, " +
-                    "record_id, event_time, NULL AS machine_name FROM event_log")
-                .Include(e => e.User)
-                .Where(e => e.EventTime >= From && e.EventTime < To.Date.AddDays(1))
-                .OrderByDescending(e => e.EventTime)
-                .ToListAsync();
-
+            var toEnd = To.Date.AddDays(1);
+            
+            IQueryable<EventLogEntry> q = ctx.EventLog.Include(e => e.User)
+                .Where(e => e.EventTime >= From && e.EventTime < toEnd);
+            
             if (!string.IsNullOrWhiteSpace(SearchUser))
-                entries = entries.Where(e => e.User?.Login?.Contains(SearchUser) == true).ToList();
-
-            Entries = new ObservableCollection<EventLogEntry>(entries);
+                q = q.Where(e => e.User != null && e.User.Login.Contains(SearchUser));
+                
+            Entries = new ObservableCollection<EventLogEntry>(
+                await q.OrderByDescending(e => e.EventTime).ToListAsync());
         }
         catch (Exception ex)
         {
             System.Windows.MessageBox.Show(
-                $"Ошибка загрузки журнала:\n\n{ex.Message}\n\n" +
-                "Запусти для полного функционала:\ndatabase/migrate_add_machine_name.sql",
+                $"Ошибка загрузки журнала:\n\n{ex.Message}\n\nЗапусти для полного функционала:\ndatabase/migrate_add_machine_name.sql",
                 "Журнал событий", System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Warning);
         }
