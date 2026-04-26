@@ -191,3 +191,82 @@ LogService.Log("Тип события", "Описание", "таблица", re
 
 Текущая задача: [ВСТАВЬ СВОЮ ЗАДАЧУ]
 ```
+
+---
+
+## Changelog — последняя сессия
+
+### Сессия 5 — финальные фичи по ТЗ
+
+**Новый файл:** `Views/Dialogs/ChangePasswordDialog.xaml` + code-behind в `Dialogs.xaml.cs`
+- Форма: текущий пароль + новый + подтверждение (мин. 6 симв.)
+- Кнопка «🔑 Сменить пароль» в сайдбаре `MainWindow` для ВСЕХ ролей
+- `MainViewModel.ChangePasswordCommand` → открывает диалог
+
+**Отчёты (`ReportsViewModel.cs` + `ReportsPage.xaml`):**
+- Отчёт 4 добавлен: «Состояние оборудования по классам» — перекрёстный запрос (п.5.4 ТЗ)
+  Колонки: Класс, Всего, Исправно, В_ремонте, Списано, Процент_неисправных
+- `CalcFaultPercent(total, faulty)` — пользовательская функция C# (п.5.4 ТЗ)
+- `FaultSummary` — строка под заголовком отчёта (отчёты 1 и 4): «Всего: N | Неисправно: N | X.X %»
+- Кнопка «🖨 Печать» → `PrintDialog` → `PrintVisual` с масштабом под страницу
+  Реализовано через `PrintRequested` (Action) из VM → `ReportsPage.PrintReport()` в code-behind
+- `ChartBars` + `IsChartVisible` — горизонтальная диаграмма для отчёта 2
+
+**Условное форматирование (`EquipmentPage.xaml`):**
+- `DataGrid.RowStyle` с `DataTrigger`: Списано → красный фон, В ремонте → жёлтый
+
+**Конвертеры:**
+- `EmptyStringToVisibilityConverter` → ключ `StrToVis` (Visible когда строка не пустая)
+
+**EquipmentDialog:**
+- Автогенерация ИНВ-номера: `ИНВ-00001`, `ИНВ-00002`, ... (берёт max из БД + 1)
+- `_saved` флаг + `OnWindowClosing` guard — спрашивает при закрытии без сохранения
+
+**Убрано:**
+- DEV-кнопка из `LoginWindow.xaml`
+- `DevResetCommand` из `LoginViewModel`
+- `DevResetPasswords()` из `AuthService`
+
+**ToolTip** на кнопках: Добавить, Изменить, Удалить, Обновить, Печать, Экспорт
+
+---
+
+## Статус ТЗ — ВСЁ РЕАЛИЗОВАНО
+
+| Пункт | Статус |
+|---|---|
+| 5.1 Стек (.NET8, WPF, MySQL, MVVM, BCrypt, ClosedXML) | ✅ |
+| 5.2 Роли (admin/operator/observer) | ✅ |
+| 5.3 Все 7 окон включая смену пароля | ✅ |
+| 5.4 Все 5+ запросов включая перекрёстный + CalcFaultPercent | ✅ |
+| 5.5 4 отчёта + диаграмма + условное форматирование | ✅ |
+| 5.6 Журналирование всех событий + имя ПК | ✅ |
+| 5.7 Бэкап, Excel, фото, валидация, ToolTip | ✅ |
+| Пояснительная записка | ❌ не начата |
+
+---
+
+## Что передать следующей нейронке
+
+```
+Репозиторий: https://github.com/ggwpw/EquipmentDB
+Токен: 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
+
+git clone https://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@github.com/ggwpw/EquipmentDB.git
+
+Прочитай первым: docs/obsidian/Meta/AI-Context.md
+
+Стек: WPF / .NET 8 / MySQL 8 / EF Core (Pomelo) / MVVM / BCrypt / ClosedXML
+Ключевые файлы:
+  ViewModels/ReportsViewModel.cs   — отчёты, диаграмма, печать, CalcFaultPercent
+  Views/Pages/ReportsPage.xaml     — страница отчётов с PrintArea
+  Views/Pages/Pages.xaml.cs       — PrintReport() code-behind
+  ViewModels/MainViewModel.cs      — навигация, ChangePasswordCommand
+  Services/AuthService.cs          — Login, ChangePassword, WriteHistory
+  Helpers/Helpers.cs               — PhoneMask, DataGridHelper, CurrentSession
+  Converters/Converters.cs         — все конвертеры (PathToImage, StrToVis, etc.)
+  Resources/Styles.xaml            — глобальные стили и конвертеры
+
+Осталось только: пояснительная записка (ГОСТ 7.32-2017, 20+ стр.)
+Текущая задача: [ВСТАВЬ ЗАДАЧУ]
+```
