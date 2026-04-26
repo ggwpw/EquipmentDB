@@ -34,7 +34,7 @@ public class AppDbContext : DbContext
 
         // Явное указание имени колонки для MachineName и PcName
         m.Entity<EventLogEntry>().Property(e => e.MachineName).HasColumnName("machine_name");
-        m.Entity<LoginHistory>().Property(l => l.PcName).HasColumnName("pc_name");
+        m.Entity<LoginHistory>().Property(l => l.PcName).HasColumnName("pcname");
 
         m.Entity<Staff>().HasOne(s => s.Room).WithMany(r => r.Staff)
             .HasForeignKey(s => s.RoomId).OnDelete(DeleteBehavior.SetNull);
