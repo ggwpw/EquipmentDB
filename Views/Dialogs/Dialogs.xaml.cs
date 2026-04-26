@@ -60,6 +60,18 @@ public partial class EquipmentDialog : Window
             _vm.ArrivalDateDt = item.ArrivalDate.ToDateTime(TimeOnly.MinValue);
             _vm.Specs = item.Specs; _vm.PhotoPath = item.PhotoPath;
         }
+        else
+        {
+            // Автогенерация следующего ИНВ-номера: ИНВ-00001, ИНВ-00002, ...
+            var last = ctx.Equipment
+                .Where(e => e.InventoryNumber.StartsWith("ИНВ-"))
+                .Select(e => e.InventoryNumber)
+                .ToList()
+                .Select(n => { int v; return int.TryParse(n[4..], out v) ? v : 0; })
+                .DefaultIfEmpty(0)
+                .Max();
+            _vm.InventoryNumber = $"ИНВ-{(last + 1):D5}";
+        }
         DataContext = _vm;
         Loaded += (_, _) => UpdatePhotoPreview();
     }

@@ -40,24 +40,6 @@ public static class AuthService
         return new(LoginResult.Success);
     }
 
-    public static void DevResetPasswords()
-    {
-        using var ctx = new AppDbContext();
-        var defaults = new Dictionary<string, string>
-        {
-            ["admin"] = "admin123", ["operator"] = "oper123", ["observer"] = "obs123"
-        };
-        foreach (var u in ctx.Users.ToList())
-        {
-            u.IsActive = true; u.FailedAttempts = 0;
-            if (defaults.TryGetValue(u.Login, out var pwd))
-                u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(pwd, workFactor: 11);
-        }
-        ctx.SaveChanges();
-        MessageBox.Show("Готово!\n\nadmin / admin123\noperator / oper123\nobserver / obs123\n\nБлокировки сняты.",
-            "DEV: Сброс", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
-
     public static bool ChangePassword(int userId, string current, string newPwd)
     {
         using var ctx = new AppDbContext();

@@ -16,15 +16,13 @@ public class LoginViewModel : BaseViewModel
     public string AttemptsMessage { get => _attemptsMessage; set => Set(ref _attemptsMessage, value); }
     public bool   IsLoading       { get => _isLoading;       set => Set(ref _isLoading, value); }
 
-    public ICommand LoginCommand     { get; }
-    public ICommand DevResetCommand  { get; }
+    public ICommand LoginCommand { get; }
     public event Action? LoginSucceeded;
     public event Action? AppCloseRequested;
 
     public LoginViewModel()
     {
-        LoginCommand    = new RelayCommand(DoLogin, _ => !string.IsNullOrWhiteSpace(Login) && !IsLoading);
-        DevResetCommand = new RelayCommand(_ => DevReset());
+        LoginCommand = new RelayCommand(DoLogin, _ => !string.IsNullOrWhiteSpace(Login) && !IsLoading);
     }
 
     private void DoLogin(object? param)
@@ -50,15 +48,5 @@ public class LoginViewModel : BaseViewModel
                     AppCloseRequested?.Invoke();
                 break;
         }
-    }
-
-    private void DevReset()
-    {
-        AuthService.DevResetPasswords();
-        ErrorMessage    = string.Empty;
-        AttemptsMessage = string.Empty;
-        System.Windows.MessageBox.Show(
-            "✅ Готово!\n\nadmin / admin123\noperator / oper123\nobserver / obs123\n\nВсе блокировки сняты.",
-            "DEV: Сброс", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
     }
 }
